@@ -45,11 +45,19 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="AutoBuildConventionsFixture.cs" />
+    <Compile Include="BuilderConventionsFixture.cs" />
     <Compile Include="CheckerFactory.cs" />
     <Compile Include="CheckerBuilderFixture.cs" />
     <Compile Include="CheckerFixture.cs" />
+    <Compile Include="Checking\PropertyCompareTargeterFixture.cs" />
+    <Compile Include="Checking\SampleClass.cs" />
+    <Compile Include="Checking\SampleEnum.cs" />
+    <Compile Include="Checking\SampleStruct.cs" />
+    <Compile Include="Checking\TypeCompareTargeterFixture.cs" />
     <Compile Include="Child.cs" />
     <Compile Include="ChildChecker.cs" />
+    <Compile Include="Descendant.cs" />
     <Compile Include="IdentifiableChecker.cs" />
     <Compile Include="IIdentifiable.cs" />
     <Compile Include="Parent.cs" />

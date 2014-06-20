@@ -10,7 +10,7 @@
         private const string Format = "{0}: Expected:<{1}>. Actual:<{2}>";
 
         /// <summary>
-        /// Create a new instace of the <see cref="PropertyCheckException" /> class.
+        /// Create a new instance of the <see cref="PropertyCheckException" /> class.
         /// </summary>
         /// <param name="propertyName"></param>
         /// <param name="expected"></param>

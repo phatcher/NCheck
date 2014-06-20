@@ -13,7 +13,7 @@
         /// </summary>
         /// <param name="expected">Object containing expected values</param>
         /// <param name="candidate">Object containing values to check</param>
-        /// <param name="objectName">Name of the object, used to disambiguate error messages e.g. SalePrice vs CostPrice</param>
-        void Check(object expected, object candidate, string objectName);
+        /// <param name="objectName">Name of the object, used to disambiguate error messages</param>
+        void Check(object expected, object candidate, string objectName = "");
     }
 }

@@ -10,7 +10,14 @@
     /// </summary>
     public class PropertyCheck
     {
+        private static Action<ITypeCompareTargeter> initializer;
+        private static ITypeCompareTargeter typeCompareTargeter;
         private CompareTarget compareTarget;
+
+        static PropertyCheck()
+        {
+            SetTypeCompareTargeterInitializer(CheckerExtensions.InitializeTypeCompareTargeter);
+        }
 
         /// <summary>
         /// Create a new instance of the <see cref="PropertyCheck" /> class
@@ -29,9 +36,35 @@
         public static IIdentityChecker IdentityChecker { get; set; }
 
         /// <summary>
-        /// Gets or sets the class which knows the default CompareTarget for a type.
+        /// Gets or sets the class which knows the default <see cref="CompareTarget"/> for a type.
         /// </summary>
-        public static ITypeCompareTargeter Targeter { get; set; }
+        [Obsolete("Use TypeCompareTargeter")]
+        public static ITypeCompareTargeter Targeter
+        {
+            get { return TypeCompareTargeter; }
+            set { TypeCompareTargeter = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the class which knows the default <see cref="CompareTarget"/> for a property.
+        /// <para>
+        /// This allows the introduction of conventions based on property names.
+        /// </para>
+        /// </summary>
+        public static IPropertyCompareTargeter PropertyCompareTargeter { get; set; }
+
+        /// <summary>
+        /// Gets or sets the class which knows the default <see cref="CompareTarget"/> for a type.
+        /// </summary>
+        public static ITypeCompareTargeter TypeCompareTargeter 
+        {
+            get { return typeCompareTargeter; }
+            set
+            {
+                typeCompareTargeter = value;
+                initializer(typeCompareTargeter);
+            }
+        }
 
         /// <summary>
         /// Gets the <see cref="PropertyInfo"/> used to access values on the object.
@@ -44,10 +77,7 @@
         /// </summary>
         public CompareTarget CompareTarget
         {
-            get
-            {
-                return compareTarget;
-            }
+            get { return compareTarget; }
             set
             {
                 compareTarget = value;
@@ -61,6 +91,43 @@
         public int Length { get; set; }
 
         /// <summary>
+        /// Sets the function that initializes the <see cref="TypeCompareTargeter"/>
+        /// </summary>
+        /// <param name="func"></param>
+        public static void SetTypeCompareTargeterInitializer(Action<ITypeCompareTargeter> func)
+        {
+            initializer = func;
+        }
+
+        /// <summary>
+        /// Determine the comparison target for a property.
+        /// </summary>
+        /// <param name="propertyInfo"></param>
+        /// <returns></returns>
+        public static CompareTarget DetermineCompareTarget(PropertyInfo propertyInfo)
+        {
+            CompareTarget target;
+
+            if (PropertyCompareTargeter != null)
+            {
+                target = PropertyCompareTargeter.DetermineCompareTarget(propertyInfo);
+                if (target != CompareTarget.Unknown)
+                {
+                    return target;
+                }
+            }
+
+            if (TypeCompareTargeter == null)
+            {
+                throw new NotSupportedException("No ITypeCompareTargeter assigned to PropertyCheck");
+            }
+
+            target = TypeCompareTargeter.DetermineCompareTarget(propertyInfo.PropertyType);
+
+            return target != CompareTarget.Unknown ? target : CompareTarget.Value;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="checker"></param>
@@ -69,6 +136,12 @@
         /// <param name="objectName"></param>
         public void Check(IChecker checker, object expectedEntity, object candidateEntity, string objectName)
         {
+            // Early quit if told to ignore.
+            if (CompareTarget == CompareTarget.Ignore)
+            {
+                return;
+            }
+
             // Have to do the null check here, else "System.Reflection.TargetException: Non-static method requires a target."
             // could be thrown by RuntimePropertyInfo.GetValue().
             if (CheckNullNotNull(expectedEntity, candidateEntity, objectName))
@@ -161,6 +234,9 @@
         {
             switch (target)
             {
+                case CompareTarget.Ignore:
+                    break;
+
                 case CompareTarget.Id:
                     CheckId(expected, candidate, objectName + ".Id");
                     break;
@@ -174,7 +250,7 @@
                     Check(checker, expected as IEnumerable, candidate as IEnumerable, objectName);
                     break;
 
-                default:
+                case CompareTarget.Value:
                     if (CheckNullNotNull(expected, candidate, objectName))
                     {
                         return;
@@ -185,6 +261,9 @@
                         throw new PropertyCheckException(objectName, expected, candidate);
                     }
                     break;
+
+                default:
+                    throw new NotSupportedException("Cannot perform comparison: " + target);
             }
         }
 
@@ -230,17 +309,17 @@
                 if (type == null)
                 {
                     type = enumExpected.Current.GetType();
-                    if (Targeter == null)
+                    if (TypeCompareTargeter == null)
                     {
                         throw new NotSupportedException("No ITypeCompareTargeter assigned to PropertyCheck");
                     }
-                    target = Targeter.DetermineCompareTarget(type);
+                    target = TypeCompareTargeter.DetermineCompareTarget(type);
                 }
                 enumCandidate.MoveNext();
                 Check(target, checker, enumExpected.Current, enumCandidate.Current, objectName + "[" + i++ + "]");
             }
         }
-
+        
         /// <summary>
         /// Check if both expected and candidate are null or not null
         /// </summary>

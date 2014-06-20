@@ -37,6 +37,16 @@
             }
         }
 
+        /// <summary>
+        /// Allows access to the <see cref="PropertyCheck" />s by name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public PropertyCheck this[string name]
+        {
+            get { return Properties.FirstOrDefault(x => x.Info.Name == name); }
+        }
+
         /// <copydocfrom cref="ICheckerCompare.Properties" />
         protected IList<PropertyCheck> Properties
         {
@@ -206,11 +216,7 @@
         /// <copydocfrom cref="ICheckerCompare.Compare" />
         protected PropertyCheckExpression Compare(PropertyInfo propertyInfo)
         {
-            if (PropertyCheck.Targeter == null)
-            {
-                throw new NotSupportedException("No ITypeCompareTargeter assigned to PropertyCheck");
-            }
-            return Compare(propertyInfo, PropertyCheck.Targeter.DetermineCompareTarget(propertyInfo.PropertyType));
+            return Compare(propertyInfo, PropertyCheck.DetermineCompareTarget(propertyInfo));
         }
 
         /// <summary>
@@ -221,7 +227,7 @@
         /// <returns>A new <see cref="PropertyCheckExpression" /> created from the <see cref="PropertyInfo" /></returns>
         protected PropertyCheckExpression Compare(PropertyInfo propertyInfo, CompareTarget compareTarget)
         {
-            var pc = Find(propertyInfo);
+            var pc = this[propertyInfo.Name];
             if (pc == null)
             {
                 // Add the new check
@@ -255,12 +261,9 @@
         /// <copydocfrom cref="ICheckerCompare.Exclude" />
         protected void Exclude(PropertyInfo propertyInfo)
         {
-            var pc = Find(propertyInfo);
-            if (pc != null)
-            {
-                Properties.Remove(pc);
-            }
+            Compare(propertyInfo, CompareTarget.Ignore);
         }
+
         /// <summary>
         /// Unwrap an Expression to get to the appropriate PropertyInfo.
         /// </summary>
@@ -312,11 +315,6 @@
             }
 
             return null;
-        }
-
-        private PropertyCheck Find(PropertyInfo propertyInfo)
-        {
-            return Properties.FirstOrDefault(x => x.Info.Name == propertyInfo.Name);
         }
     }
 }

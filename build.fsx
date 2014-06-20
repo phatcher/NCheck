@@ -7,12 +7,12 @@ open Fake.NuGetHelper
 open Fake.RestorePackageHelper
 
 // Version info
-let version = "1.0.0" 
+let version = "1.1.0" 
 
 // Properties
 let buildDir = "./build"
 let toolsDir = "C:/Tools"
-let nunitPath = toolsDir @@ "NUnit 2.6/bin"
+let nunitPath = toolsDir @@ "NUnit-2.6.3/bin"
 
 // Targets
 Target "Clean" (fun _ ->

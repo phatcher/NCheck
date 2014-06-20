@@ -48,11 +48,13 @@
     <Compile Include="CheckerFactory.cs" />
     <Compile Include="Checking\CompareTarget.cs" />
     <Compile Include="Checking\IIdentityChecker.cs" />
+    <Compile Include="Checking\IPropertyCompareTargeter.cs" />
     <Compile Include="Checking\ITypeCompareTargeter.cs" />
     <Compile Include="Checking\NullIdentityChecker.cs" />
     <Compile Include="Checking\PropertyCheck.cs" />
     <Compile Include="Checking\PropertyCheckException.cs" />
     <Compile Include="Checking\PropertyCheckExpression.cs" />
+    <Compile Include="Checking\PropertyCompareTargeter.cs" />
     <Compile Include="Checking\TypeCompareTargeter.cs" />
     <Compile Include="IChecker.cs" />
     <Compile Include="IChecker.Generic.cs" />

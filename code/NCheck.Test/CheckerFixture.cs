@@ -5,7 +5,7 @@
     using System.Linq;
 
     using NCheck.Checking;
-    
+
     using NUnit.Framework;
 
     [TestFixture]
@@ -69,8 +69,8 @@
         [Test]
         public void ValidateExcludeProperty()
         {
-            var expected = new Parent { Id = 1, Name = "A", Another = 1 };
-            var candidate = new Parent { Id = 1, Name = "A", Another = 2 };
+            var expected = new Parent { Id = 1, Name = "A", Ignore = "A", Another = 1 };
+            var candidate = new Parent { Id = 1, Name = "A", Ignore = "B", Another = 2 };
 
             Check(expected, candidate);
         }
@@ -192,7 +192,6 @@
         [Test]
         public void ValidateUniquePropertyInfoChecked()
         {
-            PropertyCheck.Targeter = new TypeCompareTargeter();
             var checker = new SimpleChecker() as ICheckerCompare;
 
             // Just grab one
@@ -202,6 +201,34 @@
             var candidate = checker.Compare(expected.Info);
 
             Assert.AreSame(expected, candidate.PropertyCheck);
+        }
+
+        [Test]
+        public void NoIIdentifiableCheckerRegistered()
+        {
+            var cf = (CheckerFactory)CheckerFactory;
+            cf.Clear();
+            PropertyCheck.IdentityChecker = null;
+
+            var p1 = new Parent { Id = 1, Name = "A" };
+            var expected = new Child { Id = 1, Name = "Child", Parent = p1 };
+            var candidate = new Child { Id = 2, Name = "Child", Parent = p1 };
+
+            CheckFault(expected, candidate, "No IdentityChecker assigned, cannot perform Id check");
+        }
+
+        [Test]
+        public void NullBuilderMeansNoAutoRegistration()
+        {
+            var cf = (CheckerFactory)CheckerFactory;
+            cf.Clear();
+            cf.Builder = new NullCheckerBuilder();
+
+            var p1 = new Parent { Id = 1, Name = "A" };
+            var expected = new Child { Id = 1, Name = "Child", Parent = p1 };
+            var candidate = new Child { Id = 2, Name = "Child", Parent = p1 };
+
+            CheckFault(expected, candidate, "No checker registered for NCheck.Test.Child");
         }
 
         private void CheckFault<T>(T expected, T candidate, string name, object expectedValue, object actualValue)

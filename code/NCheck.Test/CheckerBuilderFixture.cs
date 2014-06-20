@@ -1,7 +1,5 @@
 ﻿namespace NCheck.Test
 {
-    using NCheck.Checking;
-
     using NUnit.Framework;
 
     [TestFixture]
@@ -30,14 +28,6 @@
             var checker = (ICheckerCompare)builder.Build(typeof(Jim));
 
             Assert.AreEqual(1, checker.Properties.Count, "Property count differs");
-        }
-
-        protected override void OnSetup()
-        {
-            base.OnSetup();
-
-            PropertyCheck.IdentityChecker = new IdentifiableChecker();
-            PropertyCheck.Targeter = new TypeCompareTargeter();
         }
 
         private class Fred

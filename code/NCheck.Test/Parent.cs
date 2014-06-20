@@ -26,6 +26,8 @@
             set { indexer[test] = value; }
         }
 
+        public string Ignore { get; set; }
+
         public int Another { get; set; }
 
         public Child Favourite { get; set; }

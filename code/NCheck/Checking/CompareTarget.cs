@@ -9,6 +9,11 @@
     public enum CompareTarget
     {
         /// <summary>
+        /// Unknown.
+        /// </summary>
+        Unknown = 0x0,
+
+        /// <summary>
         /// Compare the value.
         /// </summary>
         Value = 0x1,
@@ -32,6 +37,11 @@
         /// <summary>
         /// Compare a collection count
         /// </summary>
-        Count = 0x16
+        Count = 0x16,
+
+        /// <summary>
+        /// Ignore the property.
+        /// </summary>
+        Ignore = 0x32
     }
 }
