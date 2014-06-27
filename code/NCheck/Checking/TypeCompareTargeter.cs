@@ -53,7 +53,7 @@
             Register(x => x.FullName == type.FullName ? target : CompareTarget.Unknown);
         }
 
-        /// <copydocfrom cref="ITypeCompareTargeter.Register(Func{Type, CompareTarget}" />
+        /// <copydocfrom cref="ITypeCompareTargeter.Register(Func{Type, CompareTarget})" />
         /// <remarks>More recent functions take precedence when determining the compare target</remarks>
         public void Register(Func<Type, CompareTarget> func)
         {

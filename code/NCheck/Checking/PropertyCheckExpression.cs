@@ -36,6 +36,17 @@
         }
 
         /// <summary>
+        /// Set the compare target to <see cref="CompareTarget.Ignore"/>
+        /// </summary>
+        /// <returns></returns>
+        public PropertyCheckExpression Ignore()
+        {
+            propertyCheck.CompareTarget = CompareTarget.Ignore;
+
+            return this;
+        }
+
+        /// <summary>
         /// Set the compare target to <see cref="CompareTarget.Entity"/>
         /// </summary>
         /// <returns></returns>

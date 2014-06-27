@@ -62,6 +62,7 @@
     <Compile Include="IIdentifiable.cs" />
     <Compile Include="Parent.cs" />
     <Compile Include="ParentChecker.cs" />
+    <Compile Include="PropertyCheckExpressionFixture.cs" />
     <Compile Include="Simple.cs" />
     <Compile Include="SimpleChecker.cs" />
     <Compile Include="Fixture.cs" />

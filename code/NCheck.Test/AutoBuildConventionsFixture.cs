@@ -25,10 +25,10 @@
             var property = checker[name];
             Assert.AreEqual(expected, property.CompareTarget);  
         }
-
-        [SetUp]
-        public void Setup()
+        
+        protected override void OnSetup()
         {
+            // Force initialization of the checker factory
             var x = CheckerFactory;
         }
     }
