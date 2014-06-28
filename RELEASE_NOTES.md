@@ -1,6 +1,7 @@
-#### 1.2 (2014-06-27)
+#### 1.2 (2014-06-29)
 * 1.2: Add .Ignore onto PropertyCheckExpression, so we can do Compare(x => x.Property).Ignore as well as Exclude(x => x.Property)
 Added unit tests for PropertyCheckExpression
+Fixed nuspec so we don't include the test dll
 
 #### 1.1 (2014-06-15)
 * 1.1: Change default builder to CheckerBuilder from NullCheckerBuilder

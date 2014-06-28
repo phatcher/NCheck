@@ -16,6 +16,8 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
     </metadata>
     <files>
-        <file src="..\build\NCheck.*" target="lib\net35" />
+        <file src="..\build\NCheck.dll" target="lib\net35" />
+        <file src="..\build\NCheck.pdb" target="lib\net35" />
+        <file src="..\build\NCheck.xml" target="lib\net35" />
     </files>
 </package>
