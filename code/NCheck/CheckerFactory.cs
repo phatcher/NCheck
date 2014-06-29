@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Reflection;
 
-    using NCheck.Checking;
+    using Checking;
 
     /// <summary>
     /// A factory class that provides checking facilities for objects so that property level comparisons can be easily made
@@ -24,8 +24,8 @@
             checkers = new Dictionary<Type, IChecker>();
 
             PropertyCheck.IdentityChecker = new NullIdentityChecker();
-            PropertyCheck.TypeCompareTargeter = new TypeCompareTargeter();
-            PropertyCheck.PropertyCompareTargeter = new PropertyCompareTargeter();
+            PropertyCheck.TypeConventions = new TypeConventions();
+            PropertyCheck.PropertyConventions = new PropertyConventions();
         }
 
         /// <summary>
@@ -110,29 +110,71 @@
         /// <param name="target">CompareTarget value to return</param>
         public void Convention(Type type, CompareTarget target)
         {
-            PropertyCheck.TypeCompareTargeter.Register(type, target);
+            PropertyCheck.TypeConventions.CompareTarget.Register(type, target);
         }
 
         /// <summary>
         /// Register a <see cref="CompareTarget"/> convention based on type information.
         /// </summary>
-        /// <param name="convention"></param>
-        public void Convention(Func<Type, CompareTarget> convention)
+        /// <param name="func"></param>
+        /// <param name="value"></param>
+        public void Convention(Func<Type, bool> func, CompareTarget value)
         {
-            PropertyCheck.TypeCompareTargeter.Register(convention);
+            PropertyCheck.TypeConventions.CompareTarget.Register(func, value);
         }
 
         /// <summary>
-        /// Register a <see cref="CompareTarget"/> convention based on property information.
+        /// Register an equality comparer convention based on property information.
         /// </summary>
-        /// <param name="convention"></param>
-        public void Convention(Func<PropertyInfo, CompareTarget> convention)
+        /// <param name="func"></param>
+        /// <param name="value"></param>
+        public void Convention(Func<PropertyInfo, bool> func, CompareTarget value)
         {
-            PropertyCheck.PropertyCompareTargeter.Register(convention);
+            PropertyCheck.PropertyConventions.CompareTarget.Register(func, value);
         }
 
         /// <summary>
-        /// Registers all IChecker{T} implemented in an assembly
+        /// Register an equality comparer convention based on type information.
+        /// </summary>
+        /// <typeparam name="T">Type to use</typeparam>
+        /// <param name="value">Equality function to apply</param>
+        public void ComparerConvention<T>(Func<T, T, bool> value)
+        {
+            ComparerConvention(x => (x == typeof(T)), value.ToComparerConvention());
+        }
+
+        /// <summary>
+        /// Register an equality comparer convention based on type information.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="value"></param>
+        public void ComparerConvention<T>(Func<Type, bool> func, Func<T, T, bool> value)
+        {
+            ComparerConvention(func, value.ToComparerConvention());
+        }
+
+        /// <summary>
+        /// Register an equality comparer convention based on type information.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="value"></param>
+        public void ComparerConvention(Func<Type, bool> func, Func<object, object, bool> value)
+        {
+            PropertyCheck.TypeConventions.Comparer.Register(func, value);
+        }
+
+        /// <summary>
+        /// Register an equality comparer convention based on property information.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="value"></param>
+        public void ComparerConvention(Func<PropertyInfo, bool> func, Func<object, object, bool> value)
+        {
+            PropertyCheck.PropertyConventions.Comparer.Register(func, value);
+        }
+
+        /// <summary>
+        /// Registers all <see cref="IChecker{T}" /> implemented in an assembly
         /// </summary>
         /// <param name="assemblyFile">Filename of the assembly to register</param>
         public CheckerFactory Register(string assemblyFile)
@@ -148,7 +190,7 @@
         }
 
         /// <summary>
-        /// Registers all IChecker{T} implemented in an assembly
+        /// Registers all <see cref="IChecker{T}" /> implemented in an assembly
         /// </summary>
         /// <param name="assembly">Assembly to register</param>
         public CheckerFactory Register(Assembly assembly)
@@ -168,7 +210,7 @@
                 }
 
                 var entityType = fred.GetGenericArguments();
-                Add(entityType[0], (IChecker)checker);
+                Register(entityType[0], (IChecker)checker);
             }
 
             return this;
@@ -181,7 +223,7 @@
         /// <param name="checker"></param>
         public CheckerFactory Register<T>(IChecker<T> checker)
         {
-            Add(typeof(T), (IChecker)checker);
+            Register(typeof(T), (IChecker)checker);
 
             return this;
         }
@@ -252,7 +294,7 @@
             var checker = Builder.Build(type);
             if (checker != null)
             {
-                Add(type, checker);
+                Register(type, checker);
 
                 return checker;
             }
@@ -260,7 +302,7 @@
             throw new NotSupportedException(string.Format("No checker registered for {0}", type.FullName));
         }
 
-        private void Add(Type entityType, IChecker checker)
+        private void Register(Type entityType, IChecker checker)
         {
             // Use assignment so we can override an existing checker.
             checkers[entityType] = checker;

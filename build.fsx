@@ -7,7 +7,7 @@ open Fake.NuGetHelper
 open Fake.RestorePackageHelper
 
 // Version info
-let version = "1.2.0" 
+let version = "2.0.0" 
 
 // Properties
 let buildDir = "./build"

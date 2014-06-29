@@ -5,7 +5,7 @@
         public ParentChecker()
         {
             Initialize();
-            Exclude(x => x.Another);
+            Compare(x => x.Another).Ignore();
         }
     }
 }

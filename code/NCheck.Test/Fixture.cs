@@ -145,6 +145,46 @@
             CheckerFactory.Check(expectedList, candidateList, objectName);
         }
 
+        /// <summary>
+        /// Verify that a comparison fails.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="expected"></param>
+        /// <param name="candidate"></param>
+        /// <param name="name"></param>
+        /// <param name="expectedValue"></param>
+        /// <param name="actualValue"></param>
+        protected void CheckFault<T>(T expected, T candidate, string name, object expectedValue, object actualValue)
+        {
+            const string MessageFormat = "{0}: Expected:<{1}>. Actual:<{2}>";
+
+            var message = string.Format(MessageFormat, name, expectedValue, actualValue);
+
+            CheckFault(expected, candidate, message);
+        }
+
+        /// <summary>
+        /// Verify that a comparison fails
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="expected"></param>
+        /// <param name="candidate"></param>
+        /// <param name="faultMessage"></param>
+        protected void CheckFault<T>(T expected, T candidate, string faultMessage)
+        {
+            try
+            {
+                Check(expected, candidate);
+            }
+            catch (Exception ex)
+            {
+                Assert.AreEqual(faultMessage, ex.Message);
+                return;
+            }
+
+            Assert.Fail("No exception, expected: " + faultMessage);
+        }
+
         protected virtual ICheckerFactory CreateCheckerFactory()
         {
             return new CheckerFactory();

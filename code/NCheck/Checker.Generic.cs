@@ -6,7 +6,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
 
-    using NCheck.Checking;
+    using Checking;
 
     /// <summary>
     /// Comparator used to verify that two instances of <see typeparamref="T" /> are 
@@ -21,7 +21,7 @@
 // ReSharper restore StaticFieldInGenericType
         private readonly IList<PropertyCheck> properties;
         private readonly MethodInfo parentChecker;
-        private readonly Type parentType;
+        private readonly Type parentType;        
 
         /// <summary>
         /// Creates a new instance of the <see cref="Checker{T}" /> class.
@@ -241,27 +241,6 @@
             }
 
             return new PropertyCheckExpression(pc);
-        }
-
-        /// <summary>
-        /// Exclude the property from the comparison test.
-        /// </summary>
-        /// <param name="propertyExpression"></param>
-        protected void Exclude(Expression<Func<T, object>> propertyExpression)
-        {
-            Exclude(GetPropertyInfo(propertyExpression));
-        }
-
-        /// <copydocfrom cref="ICheckerCompare.Exclude" />
-        void ICheckerCompare.Exclude(PropertyInfo propertyInfo)
-        {
-            Exclude(propertyInfo);
-        }
-
-        /// <copydocfrom cref="ICheckerCompare.Exclude" />
-        protected void Exclude(PropertyInfo propertyInfo)
-        {
-            Compare(propertyInfo, CompareTarget.Ignore);
         }
 
         /// <summary>

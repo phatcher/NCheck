@@ -9,28 +9,28 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class PropertyCompareTargeterFixture
+    public class PropertyConventionsFixture
     {
         [Test]
         public void DefaultIsUnknown()
         {
-            var targeter = new PropertyCompareTargeter();
+            var targeter = new PropertyConventions();
             CheckTargetType<SampleClass>(targeter, x => x.Ignore, CompareTarget.Unknown);
         }
 
         [Test]
         public void DetermineValueBasedOnName()
         {
-            var targeter = new PropertyCompareTargeter();
-            targeter.Register(x => x.Name == "Ignore" ? CompareTarget.Ignore : CompareTarget.Unknown);
+            var targeter = new PropertyConventions();
+            targeter.CompareTarget.Register(x => x.Name == "Ignore", CompareTarget.Ignore);
 
             CheckTargetType<SampleClass>(targeter, x => x.Ignore, CompareTarget.Ignore);  
         }
 
-        private void CheckTargetType<T>(PropertyCompareTargeter targeter, Expression<Func<T, object>> propertyExpression, CompareTarget target)
+        private void CheckTargetType<T>(PropertyConventions targeter, Expression<Func<T, object>> propertyExpression, CompareTarget target)
         {
             var pi = GetPropertyInfo(propertyExpression);
-            Assert.AreEqual(target, targeter.DetermineCompareTarget(pi)); 
+            Assert.AreEqual(target, targeter.CompareTarget.Convention(pi)); 
         }
 
         /// <summary>

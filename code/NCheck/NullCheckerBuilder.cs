@@ -1,4 +1,6 @@
-﻿namespace NCheck
+﻿using System;
+
+namespace NCheck
 {
     /// <summary>
     /// Stub implementation of a checker builder that always returns null;
@@ -6,7 +8,7 @@
     public class NullCheckerBuilder : ICheckerBuilder
     {
         /// <copydocfrom cref="ICheckerBuilder.Build" />
-        public IChecker Build(System.Type type)
+        public IChecker Build(Type type)
         {
             return null;
         }

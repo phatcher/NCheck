@@ -46,16 +46,22 @@
     <Compile Include="CheckerBuilder.cs" />
     <Compile Include="CheckerExtensions.cs" />
     <Compile Include="CheckerFactory.cs" />
+    <Compile Include="Checking\Conventions.cs" />
     <Compile Include="Checking\CompareTarget.cs" />
+    <Compile Include="Checking\Convention.cs" />
+    <Compile Include="Checking\IConvention.cs" />
+    <Compile Include="Checking\IConventions.cs" />
     <Compile Include="Checking\IIdentityChecker.cs" />
-    <Compile Include="Checking\IPropertyCompareTargeter.cs" />
-    <Compile Include="Checking\ITypeCompareTargeter.cs" />
     <Compile Include="Checking\NullIdentityChecker.cs" />
     <Compile Include="Checking\PropertyCheck.cs" />
     <Compile Include="Checking\PropertyCheckException.cs" />
     <Compile Include="Checking\PropertyCheckExpression.cs" />
-    <Compile Include="Checking\PropertyCompareTargeter.cs" />
-    <Compile Include="Checking\TypeCompareTargeter.cs" />
+    <Compile Include="Checking\PropertyConventions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Checking\TypeConventions.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="IChecker.cs" />
     <Compile Include="IChecker.Generic.cs" />
     <Compile Include="ICheckerBuilder.cs" />

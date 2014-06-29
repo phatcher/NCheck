@@ -1,5 +1,7 @@
 ﻿namespace NCheck.Checking
 {
+    using System;
+
     /// <summary>
     /// Fluent interface for <see cref="PropertyCheck" />
     /// </summary>
@@ -27,10 +29,22 @@
         /// <summary>
         /// Set the compare target to <see cref="CompareTarget.Id"/>
         /// </summary>
+        /// <param name="comparer">Function to determine equality</param>
         /// <returns></returns>
-        public PropertyCheckExpression Id()
+        public PropertyCheckExpression Id<T>(Func<T, T, bool> comparer)
+        {
+            return Id(comparer.ToComparerConvention());
+        }
+
+        /// <summary>
+        /// Set the compare target to <see cref="CompareTarget.Id"/>
+        /// </summary>
+        /// <param name="comparer">Function to determine equality, defaults to object.Equals</param>
+        /// <returns></returns>
+        public PropertyCheckExpression Id(Func<object, object, bool> comparer = null)
         {
             propertyCheck.CompareTarget = CompareTarget.Id;
+            propertyCheck.Comparer = comparer;
 
             return this;
         }
@@ -71,10 +85,22 @@
         /// <summary>
         /// Set the compare target to <see cref="CompareTarget.Value"/>
         /// </summary>
+        /// <param name="comparer">Function to determine equality</param>        
         /// <returns></returns>
-        public PropertyCheckExpression Value()
+        public PropertyCheckExpression Value<T>(Func<T, T, bool> comparer)
+        {
+            return Value(comparer.ToComparerConvention());
+        }
+
+        /// <summary>
+        /// Set the compare target to <see cref="CompareTarget.Value"/>
+        /// </summary>
+        /// <param name="comparer">Function to determine equality, defaults to object.Equals</param>        
+        /// <returns></returns>
+        public PropertyCheckExpression Value(Func<object, object, bool> comparer = null)
         {
             propertyCheck.CompareTarget = CompareTarget.Value;
+            propertyCheck.Comparer = comparer;
 
             return this;
         }

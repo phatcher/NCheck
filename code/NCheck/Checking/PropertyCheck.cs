@@ -6,17 +6,18 @@
     using System.Reflection;
 
     /// <summary>
-    /// Checks a single property on a class for equality.
+    /// Checks a single property on a class.
     /// </summary>
     public class PropertyCheck
     {
-        private static Action<ITypeCompareTargeter> initializer;
-        private static ITypeCompareTargeter typeCompareTargeter;
+        private static Action<IConventions<Type>> initializer;
+        private static IConventions<Type> typeConventions;
         private CompareTarget compareTarget;
+        private Func<object, object, bool> comparer;
 
         static PropertyCheck()
         {
-            SetTypeCompareTargeterInitializer(CheckerExtensions.InitializeTypeCompareTargeter);
+            SetTypeConventionsInitializer(CheckerExtensions.InitializeTypeConventions);
         }
 
         /// <summary>
@@ -36,33 +37,23 @@
         public static IIdentityChecker IdentityChecker { get; set; }
 
         /// <summary>
-        /// Gets or sets the class which knows the default <see cref="CompareTarget"/> for a type.
-        /// </summary>
-        [Obsolete("Use TypeCompareTargeter")]
-        public static ITypeCompareTargeter Targeter
-        {
-            get { return TypeCompareTargeter; }
-            set { TypeCompareTargeter = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the class which knows the default <see cref="CompareTarget"/> for a property.
         /// <para>
         /// This allows the introduction of conventions based on property names.
         /// </para>
         /// </summary>
-        public static IPropertyCompareTargeter PropertyCompareTargeter { get; set; }
+        public static IConventions<PropertyInfo> PropertyConventions { get; set; }
 
         /// <summary>
-        /// Gets or sets the class which knows the default <see cref="CompareTarget"/> for a type.
+        /// Gets or sets the class which knows the conventions for a type.
         /// </summary>
-        public static ITypeCompareTargeter TypeCompareTargeter 
+        public static IConventions<Type> TypeConventions 
         {
-            get { return typeCompareTargeter; }
+            get { return typeConventions; }
             set
             {
-                typeCompareTargeter = value;
-                initializer(typeCompareTargeter);
+                typeConventions = value;
+                initializer(typeConventions);
             }
         }
 
@@ -70,6 +61,16 @@
         /// Gets the <see cref="PropertyInfo"/> used to access values on the object.
         /// </summary>
         public PropertyInfo Info { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the comparer use to determine equality for <see cref="NCheck.Checking.CompareTarget.Id"/> and <see cref="NCheck.Checking.CompareTarget.Value"/>
+        /// </summary>
+        /// <remarks>Default method is object.Equals</remarks>
+        public Func<object, object, bool> Comparer 
+        {
+            get { return comparer ?? (comparer = object.Equals); }
+            set { comparer = value; }
+        }
 
         /// <summary>
         /// Gets or sets the <see cref="CompareTarget" /> used to determine what type of comparison
@@ -84,17 +85,16 @@
                 OnCompareTargetChanged();
             }
         }
-
         /// <summary>
         /// Gets or sets the length property, used to limit string comparisons.
         /// </summary>
         public int Length { get; set; }
 
         /// <summary>
-        /// Sets the function that initializes the <see cref="TypeCompareTargeter"/>
+        /// Sets the function that initializes the <see cref="TypeConventions"/>
         /// </summary>
         /// <param name="func"></param>
-        public static void SetTypeCompareTargeterInitializer(Action<ITypeCompareTargeter> func)
+        public static void SetTypeConventionsInitializer(Action<IConventions<Type>> func)
         {
             initializer = func;
         }
@@ -108,21 +108,21 @@
         {
             CompareTarget target;
 
-            if (PropertyCompareTargeter != null)
+            if (PropertyConventions != null)
             {
-                target = PropertyCompareTargeter.DetermineCompareTarget(propertyInfo);
+                target = PropertyConventions.CompareTarget.Convention(propertyInfo);
                 if (target != CompareTarget.Unknown)
                 {
                     return target;
                 }
             }
 
-            if (TypeCompareTargeter == null)
+            if (TypeConventions == null)
             {
-                throw new NotSupportedException("No ITypeCompareTargeter assigned to PropertyCheck");
+                throw new NotSupportedException("No type conventions assigned to PropertyCheck");
             }
 
-            target = TypeCompareTargeter.DetermineCompareTarget(propertyInfo.PropertyType);
+            target = TypeConventions.CompareTarget.Convention(propertyInfo.PropertyType);
 
             return target != CompareTarget.Unknown ? target : CompareTarget.Value;
         }
@@ -161,7 +161,7 @@
         /// <param name="expected">Expected value</param>
         /// <param name="candidate">Candidate value</param>
         /// <param name="objectName">Name of the object we are checking</param>
-        protected static void CheckId(object expected, object candidate, string objectName)
+        protected void CheckId(object expected, object candidate, string objectName)
         {
             // If both null we are ok, and can't check the Id property so quit now.
             if (CheckNullNotNull(expected, candidate, objectName))
@@ -176,11 +176,7 @@
 
             var expectedId = IdentityChecker.ExtractId(expected);
             var candidateId = IdentityChecker.ExtractId(candidate);
-
-            if (!Equals(expectedId, candidateId))
-            {
-                throw new PropertyCheckException(objectName, expectedId, candidateId);
-            }
+            Check(expectedId, candidateId, objectName);
         }
 
         /// <summary>
@@ -197,7 +193,7 @@
             }
             catch (Exception ex)
             {
-                throw new PropertyCheckException(objectName + "." + this.Info.Name, string.Empty, ex.Message);
+                throw new PropertyCheckException(objectName + "." + Info.Name, string.Empty, ex.Message);
             }
         }
 
@@ -251,15 +247,7 @@
                     break;
 
                 case CompareTarget.Value:
-                    if (CheckNullNotNull(expected, candidate, objectName))
-                    {
-                        return;
-                    }
-
-                    if (!expected.Equals(candidate))
-                    {
-                        throw new PropertyCheckException(objectName, expected, candidate);
-                    }
+                    Check(expected, candidate, objectName);
                     break;
 
                 default:
@@ -309,11 +297,11 @@
                 if (type == null)
                 {
                     type = enumExpected.Current.GetType();
-                    if (TypeCompareTargeter == null)
+                    if (TypeConventions == null)
                     {
-                        throw new NotSupportedException("No ITypeCompareTargeter assigned to PropertyCheck");
+                        throw new NotSupportedException("No type conventions assigned to PropertyCheck");
                     }
-                    target = TypeCompareTargeter.DetermineCompareTarget(type);
+                    target = TypeConventions.CompareTarget.Convention(type);
                 }
                 enumCandidate.MoveNext();
                 Check(target, checker, enumExpected.Current, enumCandidate.Current, objectName + "[" + i++ + "]");
@@ -361,6 +349,30 @@
             if (expectedList.Count != candidateList.Count)
             {
                 throw new PropertyCheckException(objectName + ".Count", expectedList.Count, candidateList.Count);
+            }
+        }
+
+        private void Check(object expected, object candidate, string objectName)
+        {
+            if (CheckNullNotNull(expected, candidate, objectName))
+            {
+                return;
+            }
+
+            try
+            {
+                if (!Comparer(expected, candidate))
+                {
+                    throw new PropertyCheckException(objectName, expected, candidate);
+                }
+            }
+            catch (PropertyCheckException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new PropertyCheckException(objectName, string.Empty, ex.Message);
             }
         }
     }

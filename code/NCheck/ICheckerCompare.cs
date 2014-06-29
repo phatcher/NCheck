@@ -21,11 +21,5 @@
         /// <param name="propertyInfo">PropertyInfo to use</param>
         /// <returns>A new <see cref="PropertyCheckExpression" /> created from the <see cref="PropertyInfo" /></returns>
         PropertyCheckExpression Compare(PropertyInfo propertyInfo);
-
-        /// <summary>
-        /// Property to exclude from the collection.
-        /// </summary>
-        /// <param name="propertyInfo">PropertyInfo to use</param>        
-        void Exclude(PropertyInfo propertyInfo);
     }
 }

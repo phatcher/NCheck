@@ -8,9 +8,9 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class TypeCompareTargeterFixture
+    public class TypeConventionsFixture
     {
-        private TypeCompareTargeter targeter;
+        private TypeConventions conventions;
 
         [TestCase(typeof(Guid))]
         [TestCase(typeof(String))]
@@ -33,13 +33,13 @@
         [TestCase(typeof(SampleEnum))]
         public void ValueCompare(Type type)
         {
-            Assert.AreEqual(CompareTarget.Value, targeter.DetermineCompareTarget(type), "Incorrect CompareTarget for " + type.Name);
+            Assert.AreEqual(CompareTarget.Value, conventions.CompareTarget.Convention(type), "Incorrect CompareTarget for " + type.Name);
         }
 
         [TestCase(typeof(SampleStruct))]
         public void EntityCompare(Type type)
         {
-            Assert.AreEqual(CompareTarget.Entity, targeter.DetermineCompareTarget(type), "Incorrect CompareTarget for " + type.Name);    
+            Assert.AreEqual(CompareTarget.Entity, conventions.CompareTarget.Convention(type), "Incorrect CompareTarget for " + type.Name);    
         }
 
         [TestCase(typeof(List<int>))]
@@ -47,21 +47,21 @@
         [TestCase(typeof(ICollection<int>))]
         public void CollectionCompare(Type type)
         {
-            Assert.AreEqual(CompareTarget.Collection, targeter.DetermineCompareTarget(type), "Incorrect CompareTarget for " + type.Name);
+            Assert.AreEqual(CompareTarget.Collection, conventions.CompareTarget.Convention(type), "Incorrect CompareTarget for " + type.Name);
         }
 
         [Test]
         public void UseFunctionToDetermineCompareType()
         {
-            targeter.Register(x => typeof(IIdentifiable).IsAssignableFrom(x) ? CompareTarget.Id : CompareTarget.Unknown);
-            Assert.AreEqual(CompareTarget.Id, targeter.DetermineCompareTarget(typeof(SampleClass)));
+            conventions.CompareTarget.Register(x => typeof(IIdentifiable).IsAssignableFrom(x), CompareTarget.Id);
+            Assert.AreEqual(CompareTarget.Id, conventions.CompareTarget.Convention(typeof(SampleClass)));
         }
 
         [SetUp]
         protected void OnSetup()
         {
-            targeter = new TypeCompareTargeter();
-            targeter.InitializeTypeCompareTargeter();
+            conventions = new TypeConventions();
+            conventions.InitializeTypeConventions();
         }
     }
 }

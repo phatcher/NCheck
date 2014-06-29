@@ -1,4 +1,10 @@
-#### 1.2 (2014-06-29)
+#### 2.0 (2014-06-29)
+* 2.0: Reworked the ITypeCompareTargeter/IPropertyCompareTargeter into more generic IConvention<TSource, TTarget>
+#2 Introduced custom comparers and convention registration for them
+CompareTarget convention registration syntax simplified
+Retired Exclude use Compare(x => x.PropertyName).Ignore instead.
+
+#### 1.2 (2014-06-28)
 * 1.2: Add .Ignore onto PropertyCheckExpression, so we can do Compare(x => x.Property).Ignore as well as Exclude(x => x.Property)
 Added unit tests for PropertyCheckExpression
 Fixed nuspec so we don't include the test dll

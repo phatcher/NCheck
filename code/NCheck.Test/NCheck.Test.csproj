@@ -49,12 +49,13 @@
     <Compile Include="BuilderConventionsFixture.cs" />
     <Compile Include="CheckerFactory.cs" />
     <Compile Include="CheckerBuilderFixture.cs" />
+    <Compile Include="CheckerFactoryFixture.cs" />
     <Compile Include="CheckerFixture.cs" />
-    <Compile Include="Checking\PropertyCompareTargeterFixture.cs" />
+    <Compile Include="Checking\PropertyConventionsFixture.cs" />
     <Compile Include="Checking\SampleClass.cs" />
     <Compile Include="Checking\SampleEnum.cs" />
     <Compile Include="Checking\SampleStruct.cs" />
-    <Compile Include="Checking\TypeCompareTargeterFixture.cs" />
+    <Compile Include="Checking\TypeConventionsFixture.cs" />
     <Compile Include="Child.cs" />
     <Compile Include="ChildChecker.cs" />
     <Compile Include="Descendant.cs" />
