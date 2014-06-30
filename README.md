@@ -66,7 +66,6 @@ If we re-write the test using the NCheck library we get the following
         public void AlgoTest()
         {
             var checkerFactory = new CheckerFactory();
-            checkerFactory.Register(typeof(Simple).Assembly);
 
             var algo = new ShinyBusinssFunction();
             var source = new Simple { Id = 1, Name = "A", Value = 1.0 } ;
@@ -82,7 +81,7 @@ Now when the definition of Simple and the algorithm changes, this test will fail
 
 Couple of things to note here...
 1. We have gone from comparing individual properties to comparing objects
-2. By default we don't need to create a checker for an object, the library does this for us automatically
-3. You typically subclass CheckerFactory and put a property in your test fixtures to create it on first use.
+1. By default we don't need to create a checker for an object, the library does this for us automatically
+1. You typically subclass CheckerFactory and put a property in your test fixtures to create it on first use.
 
 
