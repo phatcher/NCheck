@@ -80,8 +80,9 @@ If we re-write the test using the NCheck library we get the following
 Now when the definition of Simple and the algorithm changes, this test will fail because the expected value will not match since it does not define values for the new properties.
 
 Couple of things to note here...
+
 1. We have gone from comparing individual properties to comparing objects
-1. By default we don't need to create a checker for an object, the library does this for us automatically
-1. You typically subclass CheckerFactory and put a property in your test fixtures to create it on first use.
+2. By default we don't need to create a checker for an object, the library does this for us automatically
+3. You typically subclass CheckerFactory and put a property in your test fixtures to create it on first use.
 
 
