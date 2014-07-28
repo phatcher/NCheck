@@ -15,7 +15,7 @@
         /// <summary>
         /// Gets the checker factory.
         /// </summary>
-        /// <remarks>Creates it on first use and also assigns ServiceLocator.Current to our ServiceLocator.</remarks>
+        /// <remarks>Creates it on first use and also assigns Checker.CheckerFactory</remarks>
         public ICheckerFactory CheckerFactory
         {
             get
@@ -27,6 +27,9 @@
                     {
                         throw new NotSupportedException("No CheckerFactory assigned to fixture");
                     }
+
+                    // Set this as the global factory, needed by individual checkers if they do Entity checks
+                    Checker.CheckerFactory = checkerFactory;
                 }
 
                 return checkerFactory;
@@ -156,11 +159,27 @@
         /// <param name="actualValue"></param>
         protected void CheckFault<T>(T expected, T candidate, string name, object expectedValue, object actualValue)
         {
+            CheckFault<T, Exception>(expected, candidate, name, expectedValue, actualValue);
+        }
+
+        /// <summary>
+        /// Verify that a comparison fails.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TException">Expected exception type</typeparam>  
+        /// <param name="expected"></param>
+        /// <param name="candidate"></param>
+        /// <param name="name"></param>
+        /// <param name="expectedValue"></param>
+        /// <param name="actualValue"></param>
+        protected void CheckFault<T, TException>(T expected, T candidate, string name, object expectedValue, object actualValue)
+            where TException : Exception
+        {
             const string MessageFormat = "{0}: Expected:<{1}>. Actual:<{2}>";
 
             var message = string.Format(MessageFormat, name, expectedValue, actualValue);
 
-            CheckFault(expected, candidate, message);
+            CheckFault<T, TException>(expected, candidate, message);
         }
 
         /// <summary>
@@ -172,11 +191,25 @@
         /// <param name="faultMessage"></param>
         protected void CheckFault<T>(T expected, T candidate, string faultMessage)
         {
+            CheckFault<T, Exception>(expected, candidate, faultMessage);
+        }
+
+        /// <summary>
+        /// Verify that a comparison fails
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TException">Expected exception type</typeparam>        
+        /// <param name="expected"></param>
+        /// <param name="candidate"></param>
+        /// <param name="faultMessage"></param>
+        protected void CheckFault<T, TException>(T expected, T candidate, string faultMessage)
+            where TException : Exception
+        {
             try
             {
                 Check(expected, candidate);
             }
-            catch (Exception ex)
+            catch (TException ex)
             {
                 Assert.AreEqual(faultMessage, ex.Message);
                 return;

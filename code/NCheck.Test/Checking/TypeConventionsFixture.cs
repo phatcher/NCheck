@@ -51,6 +51,15 @@
         }
 
         [Test]
+        public void CheckerFactoryRegisterTypeViaGeneric()
+        {
+            var cf = new CheckerFactory();
+            cf.Convention<SampleClass>(CompareTarget.Ignore);
+
+            Assert.AreEqual(CompareTarget.Ignore, PropertyCheck.TypeConventions.CompareTarget.Convention(typeof(SampleClass)));
+        }
+
+        [Test]
         public void UseFunctionToDetermineCompareType()
         {
             conventions.CompareTarget.Register(x => typeof(IIdentifiable).IsAssignableFrom(x), CompareTarget.Id);

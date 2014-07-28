@@ -13,6 +13,7 @@
         /// <param name="factory"></param>
         public CheckerBuilder(ICheckerFactory factory)
         {
+            // Set this as the global factory, needed by individual checkers if they do Entity checks
             Checker.CheckerFactory = factory;
         }
 

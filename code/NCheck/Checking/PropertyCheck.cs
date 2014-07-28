@@ -150,7 +150,7 @@
             }
 
             var expectedValue = ExtractValue(expectedEntity, objectName + ".Expected");
-            var candidateValue = ExtractValue(candidateEntity, objectName + ".Expected");
+            var candidateValue = ExtractValue(candidateEntity, objectName + ".Candidate");
 
             Check(CompareTarget, checker, expectedValue, candidateValue, objectName + "." + Info.Name);
         }
