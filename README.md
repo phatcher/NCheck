@@ -55,7 +55,7 @@ The problem arises when things change, say we add two more properties to Simple 
 
 Unfortunately, our test still passes since it does not know about the new properties and so ignores them, so we will typically pass our unit test phase and will only find out at integration testing that we have forgotten to take account of the new state.
 
-Our solution is too introduce some helper classes and methods into the tests which will catch this type of error during unit testing (much cheaper!).
+Our solution is to introduce some helper classes and methods into the tests which will catch this type of error during unit testing (much cheaper!).
 
 If we re-write the test using the NCheck library we get the following
 ```csharp
@@ -83,6 +83,6 @@ Couple of things to note here...
 
 1. We have gone from comparing individual properties to comparing objects
 2. By default we don't need to create a checker for an object, the library does this for us automatically
-3. You typically subclass CheckerFactory and put a property in your test fixtures to create it on first use.
+3. You typically subclass CheckerFactory to customize start up behaviour, and put a property in your test fixtures to create it on first use.
 
 

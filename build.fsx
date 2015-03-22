@@ -3,15 +3,24 @@
 #r "packages/FAKE/tools/FakeLib.dll"
 open Fake
 open Fake.AssemblyInfoFile
+open Fake.Git
 open Fake.NuGetHelper
 open Fake.RestorePackageHelper
+open Fake.ReleaseNotesHelper
 
 // Version info
-let version = "2.1.0" 
+let projectName = "NCheck"
+let projectSummary = ""
+let projectDescription = "Provides object checking features primarily used for state based testing"
+let authors = ["Paul Hatcher"]
+
+let release = LoadReleaseNotes "RELEASE_NOTES.md"
 
 // Properties
 let buildDir = "./build"
-let toolsDir = "C:/Tools"
+let toolsDir = getBuildParamOrDefault "tools" "./tools"
+let nugetDir = "./nuget"
+
 let nunitPath = toolsDir @@ "NUnit-2.6.3/bin"
 
 // Targets
@@ -24,9 +33,12 @@ Target "PackageRestore" (fun _ ->
 )
 
 Target "SetVersion" (fun _ ->
+    let commitHash = Information.getCurrentHash()
+    let infoVersion = String.concat " " [release.AssemblyVersion; commitHash]
     CreateCSharpAssemblyInfo "./code/SolutionInfo.cs"
-        [Attribute.Version version
-         Attribute.FileVersion version]
+        [Attribute.Version release.AssemblyVersion
+         Attribute.FileVersion release.AssemblyVersion
+         Attribute.InformationalVersion infoVersion]
 )
 
 Target "Build" (fun _ ->
@@ -45,12 +57,25 @@ Target "Test" (fun _ ->
 )
 
 Target "Pack" (fun _ ->
-    NuGet (fun p ->
+    let nugetParams p = 
       { p with 
-          Version = version
-          OutputPath = buildDir}) 
-      "nuget/NCheck.nuspec"
+          Authors = authors
+          Version = release.AssemblyVersion
+          ReleaseNotes = release.Notes |> toLines
+          OutputPath = buildDir 
+          AccessKey = getBuildParamOrDefault "nugetkey" ""
+          Publish = hasBuildParam "nugetkey" }
+
+    NuGet nugetParams "nuget/NCheck.nuspec"
 )
+
+Target "Release" (fun _ ->
+    let tag = String.concat "" ["v"; release.AssemblyVersion] 
+    Branches.tag "" tag
+    Branches.pushTag "" "origin" tag
+)
+
+Target "Default" DoNothing
 
 // Dependencies
 "Clean"
@@ -58,6 +83,8 @@ Target "Pack" (fun _ ->
     ==> "PackageRestore"
     ==> "Build"
     ==> "Test"
+    ==> "Default"
     ==> "Pack"
+    ==> "Release"
 
 RunTargetOrDefault "Test"

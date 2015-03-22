@@ -3,6 +3,7 @@ using System.Reflection;
 
 [assembly: AssemblyVersionAttribute("2.1.0")]
 [assembly: AssemblyFileVersionAttribute("2.1.0")]
+[assembly: AssemblyInformationalVersionAttribute("2.1.0 56d1b3")]
 namespace System {
     internal static class AssemblyVersionInformation {
         internal const string Version = "2.1.0";
