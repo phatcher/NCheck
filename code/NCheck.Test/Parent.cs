@@ -30,6 +30,8 @@
 
         public int Another { get; set; }
 
+        public object Castable { get; set; }
+
         public Child Favourite { get; set; }
 
         public List<Child> Children { get; set; }

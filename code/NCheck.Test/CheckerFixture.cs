@@ -1,13 +1,12 @@
-﻿namespace NCheck.Test
+﻿using System.Collections.Generic;
+using System.Linq;
+
+using NCheck.Checking;
+
+using NUnit.Framework;
+
+namespace NCheck.Test
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using NCheck.Checking;
-
-    using NUnit.Framework;
-
     [TestFixture]
     public class CheckingFixture : Fixture
     {
@@ -265,6 +264,53 @@
             var candidate = new Child {Id = 2, Name = "Child", Parent = p1};
 
             CheckFault(expected, candidate, "No checker registered for NCheck.Test.Child");
+        }
+        [Test]
+        public void DefaultComparer()
+        {
+            var candidate = new Parent { Id = 1, Name = "A", Another = 1 };
+            var expected = new Parent { Id = 1, Name = "A", Another = 2, };
+
+            Check(expected, candidate);
+        }
+
+        [Test]
+        public void IncludeAnotherProperty()
+        {
+            var expected = new Parent { Id = 1, Name = "A", Another = 1, };
+            var candidate = new Parent { Id = 1, Name = "A", Another = 1, };
+
+            Compare<Parent>(x => x.Another).Value();
+            Check(expected, candidate);
+        }
+
+        [Test]
+        public void IncludeAnotherPropertyComparisonFails()
+        {
+            var expected = new Parent { Id = 1, Name = "A", Another = 1, };
+            var candidate = new Parent { Id = 1, Name = "A", Another = 2, };
+
+            Compare<Parent>(x => x.Another).Value();
+            CheckFault(expected, candidate, "Parent.Another", 1, 2);
+        }
+
+        [Test]
+        public void ExcludeNameProperty()
+        {
+            var expected = new Parent { Id = 1, Name = "B", Another = 2 };
+            var candidate = new Parent { Id = 1, Name = "A", Another = 1, };
+
+            Compare<Parent>(x => x.Name).Ignore();
+            Check(expected, candidate);
+        }
+
+        [Test]
+        public void ValidateInvalidCast()
+        {
+            var expected = new Parent { Id = 1, Name = "A", Castable = 10 };
+            var candidate = new Parent { Id = 1, Name = "A", Castable = 10M, };
+
+            CheckFault(expected, candidate, "Parent.Castable: Could not cast candidate value 10 (Decimal) to Int32");
         }
     }
 }

@@ -68,7 +68,7 @@
         /// <remarks>Default method is object.Equals</remarks>
         public Func<object, object, bool> Comparer 
         {
-            get { return comparer ?? (comparer = object.Equals); }
+            get { return comparer ?? (comparer = Equals); }
             set { comparer = value; }
         }
 

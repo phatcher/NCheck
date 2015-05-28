@@ -1,3 +1,8 @@
+#### 2.2.0 (2015-05-28)
+* Sign the assembly
+* BUGFIX: Detailed reporting of InvalidCastException when comparing values rather than naked exception.
+* Extend ICheckerFactory to support Compare<T>, this allows for overriding checkers on a per-test basis.
+
 #### 2.1.0 (2014-07-28)
 * Fixes #4 - Incorrect label candidate/expected 
 * Set the static Checker.CheckerFactory in Fixture.CheckerFactory in case it's not set by CheckerBuilder 

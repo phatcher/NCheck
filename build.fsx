@@ -87,4 +87,4 @@ Target "Default" DoNothing
     ==> "Pack"
     ==> "Release"
 
-RunTargetOrDefault "Test"
+RunTargetOrDefault "Default"

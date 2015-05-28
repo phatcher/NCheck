@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Reflection;
 
     using Checking;
@@ -91,6 +92,16 @@
             {
                 Checker<T>().CheckBase(expected, candidate, objectName);
             }
+        }
+
+        /// <copydocfrom cref="ICheckerFactory.Compare{T}" />
+        public PropertyCheckExpression Compare<T>(Expression<Func<T, object>> propertyExpression)
+        {
+            // Get the checker for the entity
+            var checker = (ICheckerCompare) Checker<T>();
+
+            // Expose the property checker expression for the property.
+            return checker.Compare(propertyExpression.GetPropertyInfo());
         }
 
         /// <summary>

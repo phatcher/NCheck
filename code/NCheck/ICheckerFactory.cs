@@ -1,13 +1,24 @@
-﻿namespace NCheck
-{
-    using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
+using NCheck.Checking;
+
+namespace NCheck
+{
     /// <summary>
     /// Delivers comparators used to verify that two instances of <see typeparamref="T" /> are 
     /// the same on a per property basis.
     /// </summary>
     public interface ICheckerFactory : IChecker
     {
+        /// <summary>
+        /// Add comparison to an entity checker.
+        /// </summary>
+        /// <param name="propertyExpression"></param>
+        /// <returns></returns>
+        PropertyCheckExpression Compare<T>(Expression<Func<T, object>> propertyExpression);
+
         /// <summary>
         /// Check that the properties of two instances of <see typeparamref="T" /> are equal
         /// </summary>

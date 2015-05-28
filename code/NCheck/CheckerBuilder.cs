@@ -26,7 +26,7 @@
         {
             var genericType = typeof(Checker<>);
 
-            var checkerType = genericType.MakeGenericType(new[] { type });
+            var checkerType = genericType.MakeGenericType(type);
 
             var checker = (IChecker)Activator.CreateInstance(checkerType);
             var compare = (ICheckerCompare)checker;

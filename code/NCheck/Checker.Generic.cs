@@ -109,7 +109,7 @@
         /// <copydocfrom cref="IChecker.Check" />
         void IChecker.Check(object expected, object candidate, string objectName)
         {
-            Check((T)expected, (T)candidate, objectName);
+            Check(ToValue<T>(expected, "expected", objectName), ToValue<T>(candidate, "candidate", objectName), objectName);
         }
 
         /// <summary>
@@ -198,13 +198,13 @@
         }
 
         /// <summary>
-        /// Include the property in the comparison test.
+        /// Add comparison to an entity checker.
         /// </summary>
         /// <param name="propertyExpression"></param>
         /// <returns></returns>
         protected PropertyCheckExpression Compare(Expression<Func<T, object>> propertyExpression)
         {
-            return Compare(GetPropertyInfo(propertyExpression));
+            return Compare(propertyExpression.GetPropertyInfo());
         }
 
         /// <copydocfrom cref="ICheckerCompare.Compare" />
@@ -243,57 +243,20 @@
             return new PropertyCheckExpression(pc);
         }
 
-        /// <summary>
-        /// Unwrap an Expression to get to the appropriate PropertyInfo.
-        /// </summary>
-        /// <typeparam name="TU"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="expression"></param>
-        /// <returns></returns>
-        private static PropertyInfo GetPropertyInfo<TU, TValue>(Expression<Func<TU, TValue>> expression)
+        protected T ToValue<T>(object value, string x, string objectName)
         {
-            var me = GetMemberExpression(expression);
-            return me.Member as PropertyInfo;
-        }
-
-        /// <summary>
-        /// Unwrap an Expression to determine the appropriate MemberExpression.
-        /// </summary>
-        /// <typeparam name="TU"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="expression"></param>
-        /// <returns></returns>
-        private static MemberExpression GetMemberExpression<TU, TValue>(Expression<Func<TU, TValue>> expression)
-        {
-            if (expression == null)
+            try
             {
-                return null;
+                return (T)value;
             }
-
-            var me = expression.Body as MemberExpression;
-            if (me != null)
+            catch (InvalidCastException)
             {
-                return me;
+                throw new Exception(string.Format("{0}: Could not cast {1} value {2} ({3}) to {4}", objectName, x, value, value == null ? "Unknown" : value.GetType().Name, typeof(T).Name));
             }
-
-            var ue = expression.Body as UnaryExpression;
-            if (ue != null)
+            catch (Exception ex)
             {
-                var operand = ue.Operand;
-                var memberExpression = operand as MemberExpression;
-                if (memberExpression != null)
-                {
-                    return memberExpression;
-                }
-
-                var callExpression = operand as MethodCallExpression;
-                if (callExpression != null)
-                {
-                    return callExpression.Object as MemberExpression;
-                }
+                throw new Exception(string.Format("{0}: Could not cast {1} value {2} ({3}) to {4}: {5}", objectName, x, value, value == null ? "Unknown" : value.GetType().Name, typeof(T).Name, ex.Message));
             }
-
-            return null;
         }
     }
 }

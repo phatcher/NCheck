@@ -7,5 +7,7 @@
         public string Name { get; set; }
 
         public string Ignore { get; set; }
+
+        public double Value { get; set; }
     }
 }

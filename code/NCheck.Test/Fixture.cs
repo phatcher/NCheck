@@ -2,6 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq.Expressions;
+
+    using NCheck.Checking;
 
     using NUnit.Framework;
 
@@ -54,6 +57,16 @@
         {
             OnTearDown();
             TidyUp();
+        }
+
+        /// <summary>
+        /// Add comparison to an entity checker.
+        /// </summary>
+        /// <param name="propertyExpression"></param>
+        /// <returns></returns>
+        protected PropertyCheckExpression Compare<T>(Expression<Func<T, object>> propertyExpression)
+        {
+            return CheckerFactory.Compare(propertyExpression);
         }
 
         /// <summary>

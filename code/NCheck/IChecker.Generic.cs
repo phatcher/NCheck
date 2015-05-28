@@ -16,7 +16,7 @@
         void Check(T expected, T candidate, string objectName = "");
 
         /// <summary>
-        /// Check the base properties of <see typeparameref="T" />
+        /// Check the base properties of <see typeparameref="T" />, used when invoked from a descendant class checker.
         /// </summary>
         /// <param name="expected">Expected object to use</param>
         /// <param name="candidate">Candidate object to use</param>

@@ -60,6 +60,9 @@
     <Compile Include="Child.cs" />
     <Compile Include="ChildChecker.cs" />
     <Compile Include="Descendant.cs" />
+    <Compile Include="Examples\ShinyBusinessService.cs" />
+    <Compile Include="Examples\Simple.cs" />
+    <Compile Include="Examples\SimpleTest.cs" />
     <Compile Include="IdentifiableChecker.cs" />
     <Compile Include="IIdentifiable.cs" />
     <Compile Include="Parent.cs" />
@@ -79,6 +82,7 @@
       <Name>NCheck</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
