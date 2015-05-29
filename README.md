@@ -96,8 +96,11 @@ Couple of things to note here...
 The CheckerFactory has a number conventions which are used to automatically construct Checkers for each class; these conventions can be overridden by the developer if
 they don't suit a particular scenario.
 
-We can have type conventions, which apply to all instances of a particular type, property conventions which apply to all properties of a specified name irrespective of type, and
-comparer conventions which allow overriding of value comparison from object.Equals, e.g. to allow for error bounds on floating point numbers.
+We support...
+
+* Type conventions: Applied to all instances of a particular type
+* Property conventions: Applied to properties which satisfy a function e.g. matching a particular name
+* Comparer conventions: Operates on a type or property convention and changes Value comparison from object.Equals to a specified comparer; useful for values such putting error bound on floating point comparison.
 
 ```csharp
     public class CheckerFactory : NCheck.CheckerFactory
@@ -163,7 +166,7 @@ CheckerFactory.Initialize.
 
 ### Customizing a checker
 
-If you can't acheive your required behaviour with conventsion, you will need to define a custom checker, example below...
+If you can't achieve your required behaviour with convention, you will need to define a custom checker, example below...
 
 ```csharp
     public class SimpleChecker : Checker<Simple>
@@ -194,8 +197,7 @@ You can also initialize the Checker with the default behaviour, and then overrid
 
 ### Managing Object Identity
 
-For complex object graphs it may not be necessary to compare all properties, but to just ensure than the identity of the expected and candidate entities are the same. To this end
-the library supports the idea of an identity checker via IIdentityChecker which allows the developer to implement a domain-specific checker.
+For complex object graphs it may not be necessary, or useful (think about cyclic references) to compare all properties, but to just ensure than the identity of the expected and candidate entities are the same. To this end the library supports the idea of an identity checker via IIdentityChecker which allows the developer to implement a domain-specific checker.
 
 Say we have an interface in our domain model IIdentifiable as follows, with a sample usage
 
@@ -205,7 +207,7 @@ Say we have an interface in our domain model IIdentifiable as follows, with a sa
         int Id { get; set; }
     }
 
-    public class Customer
+    public class Customer : IIdentifiable
     {
         public int Id { get; set; }
 
@@ -215,6 +217,73 @@ Say we have an interface in our domain model IIdentifiable as follows, with a sa
 
 We can write an implementation of IIdentityChecker which limits to just checking the identity of the object instances, this is useful if the database is involved and values
 such as audit information may have been updated.
+
+```csharp
+    public class IdentifiableChecker : IIdentityChecker
+    {
+        public bool SupportsId(Type type)
+        {
+            return typeof(IIdentifiable).IsAssignableFrom(type);
+        }
+
+        public object ExtractId(object value)
+        {
+            var x = value as IIdentifiable;
+            return x == null ? null : x.Id;
+        }
+    }
+```
+
+You then register and instance of this class in your custom CheckerFactory
+```csharp
+    ...
+        public CheckerFactory()
+        {
+            PropertyCheck.IdentityChecker = new IdentifiableChecker();
+
+            Initialize();
+        }
+	...
+```
+
+This can then be easily used to break object cycles as follows...
+
+```csharp
+    public interface IIdentifiable
+    {
+        int Id { get; set; }
+    }
+
+    public class Order : IIdentifiable
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+		
+		public IList<OrderLine> { get; set; }
+		
+		....
+    }
+	
+	public class OrderLine : IIdentifiable
+	{
+	    public int Id { get; set; }
+		
+		public Order Order { get; set; }
+		
+		....
+	}
+	
+	public class OrderLineChecker : Checker<OrderLine>
+	{
+	    public OrderLineChecker()
+		{
+            Initialize();
+            Compare(x => x.Order).Id;
+		}
+	}
+```
+
 
 ### Allowing for failure
 
