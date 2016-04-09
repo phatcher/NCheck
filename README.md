@@ -14,6 +14,11 @@ You can see the version history [here](RELEASE_NOTES.md).
 
 I have my tools in C:\Tools so I use *build.cmd Default tools=C:\Tools encoding=UTF-8*
 
+You can also get the package directly from NuGet
+
+[![NuGet](https://img.shields.io/nuget/v/NCheck.svg)](https://img.shields.io/nuget/v/NCheck.svg)
+[![Build status](https://ci.appveyor.com/api/projects/status/6y5wmxh8u93baffu/branch/master?svg=true)](https://ci.appveyor.com/project/PaulHatcher/csvreader/branch/master)
+
 ## Library License
 The library is available under the [MIT License](http://en.wikipedia.org/wiki/MIT_License), for more information see the [License file][1] in the GitHub repository.
 
