@@ -119,6 +119,10 @@ We support...
 
         private void Initialize()
         {
+            // Set us up as the global factory, used to locate the checkers later on.
+            // Also done by the builder, but this is needed if the builder is not used.
+            NCheck.Checker.CheckerFactory = this;
+
             // NB Conventions must be before type registrations if they are to apply.
             Convention(x => typeof(IIdentifiable).IsAssignableFrom(x), CompareTarget.Id);
             Convention((PropertyInfo x) => x.Name == "Ignore", CompareTarget.Ignore);
@@ -248,7 +252,7 @@ You then register and instance of this class in your custom CheckerFactory
 
             Initialize();
         }
-	...
+    ...
 ```
 
 This can then be easily used to break object cycles as follows...
@@ -264,29 +268,29 @@ This can then be easily used to break object cycles as follows...
         public int Id { get; set; }
 
         public string Name { get; set; }
-		
-		public IList<OrderLine> { get; set; }
-		
-		....
+        
+        public IList<OrderLine> { get; set; }
+        
+        ....
     }
-	
-	public class OrderLine : IIdentifiable
-	{
-	    public int Id { get; set; }
-		
-		public Order Order { get; set; }
-		
-		....
-	}
-	
-	public class OrderLineChecker : Checker<OrderLine>
-	{
-	    public OrderLineChecker()
-		{
+    
+    public class OrderLine : IIdentifiable
+    {
+        public int Id { get; set; }
+        
+        public Order Order { get; set; }
+        
+        ....
+    }
+    
+    public class OrderLineChecker : Checker<OrderLine>
+    {
+        public OrderLineChecker()
+        {
             Initialize();
             Compare(x => x.Order).Id;
-		}
-	}
+        }
+    }
 ```
 
 
@@ -321,37 +325,47 @@ This will check for a specific failure in the comparsion, the other overload all
 
 For specific tests, you might want to override the standard Checker for the class, be it automatically constructed or one you have explicitly defined.
 
-To do this, ICheckerFactory exposes the Compare<T> interface used to specify property comparisons, here are some examples taken from the unit tests.
+To do this, ICheckerFactory exposes the Compare<T> interface used to specify property comparisons, here are some examples taken from the unit tests; the Parent checker
+has been defined to specifically ignore the Another property.
 ```csharp
-   ...
-        [Test]
-        public void IncludeAnotherProperty()
+    ...
+    public class ParentChecker : Checker<Parent>
+    {
+        public ParentChecker()
         {
-            var expected = new Parent { Id = 1, Name = "A", Another = 1, };
-            var candidate = new Parent { Id = 1, Name = "A", Another = 1, };
-
-            Compare<Parent>(x => x.Another).Value();
-            Check(expected, candidate);
+            Initialize();
+            Compare(x => x.Another).Ignore();
         }
+    }
+    ...
+    [Test]
+    public void IncludeAnotherProperty()
+    {
+        var expected = new Parent { Id = 1, Name = "A", Another = 1, };
+        var candidate = new Parent { Id = 1, Name = "A", Another = 1, };
 
-        [Test]
-        public void IncludeAnotherPropertyComparisonFails()
-        {
-            var expected = new Parent { Id = 1, Name = "A", Another = 1, };
-            var candidate = new Parent { Id = 1, Name = "A", Another = 2, };
+        Compare<Parent>(x => x.Another).Value();
+        Check(expected, candidate);
+    }
 
-            Compare<Parent>(x => x.Another).Value();
-            CheckFault(expected, candidate, "Parent.Another", 1, 2);
-        }
+    [Test]
+    public void IncludeAnotherPropertyComparisonFails()
+    {
+        var expected = new Parent { Id = 1, Name = "A", Another = 1, };
+        var candidate = new Parent { Id = 1, Name = "A", Another = 2, };
 
-        [Test]
-        public void ExcludeNameProperty()
-        {
-            var expected = new Parent { Id = 1, Name = "B", Another = 2 };
-            var candidate = new Parent { Id = 1, Name = "A", Another = 1, };
+        Compare<Parent>(x => x.Another).Value();
+        CheckFault(expected, candidate, "Parent.Another", 1, 2);
+    }
 
-            Compare<Parent>(x => x.Name).Ignore();
-            Check(expected, candidate);
-        }
-   ...
+    [Test]
+    public void ExcludeNameProperty()
+    {
+        var expected = new Parent { Id = 1, Name = "B", Another = 2 };
+        var candidate = new Parent { Id = 1, Name = "A", Another = 1, };
+
+        Compare<Parent>(x => x.Name).Ignore();
+        Check(expected, candidate);
+    }
+    ...
 ```
