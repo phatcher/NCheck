@@ -16,7 +16,7 @@ I have my tools in C:\Tools so I use *build.cmd Default tools=C:\Tools encoding=
 
 You can also get the package directly from NuGet
 
-[![NuGet](https://img.shields.io/nuget/v/NCheck.svg)](https://img.shields.io/nuget/v/NCheck.svg)
+[![NuGet](https://img.shields.io/nuget/v/NCheck.svg)](https://www.nuget.org/packages/NCheck/)
 [![Build status](https://ci.appveyor.com/api/projects/status/6y5wmxh8u93baffu/branch/master?svg=true)](https://ci.appveyor.com/project/PaulHatcher/csvreader/branch/master)
 
 ## Library License
