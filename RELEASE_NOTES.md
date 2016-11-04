@@ -1,3 +1,6 @@
+#### 2.2.1 (2016-11-04)
+* Fix Checker<T> bug when T is a generic interface and no parent type exists.
+
 #### 2.2.0 (2015-05-28)
 * Sign the assembly
 * BUGFIX: Detailed reporting of InvalidCastException when comparing values rather than naked exception.

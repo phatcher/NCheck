@@ -30,7 +30,7 @@
         {
             properties = new List<PropertyCheck>();
             parentType = typeof(T).BaseType;
-            if (parentType != typeof(object) && parentType != typeof(ValueType))
+            if (parentType != null && parentType != typeof(object) && parentType != typeof(ValueType))
             {
                 // Get a checker for the parent
                 parentChecker = CheckParentClassMi.MakeGenericMethod(parentType);

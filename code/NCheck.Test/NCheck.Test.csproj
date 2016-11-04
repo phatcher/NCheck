@@ -60,9 +60,11 @@
     <Compile Include="Child.cs" />
     <Compile Include="ChildChecker.cs" />
     <Compile Include="Descendant.cs" />
+    <Compile Include="Examples\IWrapper.cs" />
     <Compile Include="Examples\ShinyBusinessService.cs" />
     <Compile Include="Examples\Simple.cs" />
     <Compile Include="Examples\SimpleTest.cs" />
+    <Compile Include="Examples\Wrapper.cs" />
     <Compile Include="IdentifiableChecker.cs" />
     <Compile Include="IIdentifiable.cs" />
     <Compile Include="Parent.cs" />
