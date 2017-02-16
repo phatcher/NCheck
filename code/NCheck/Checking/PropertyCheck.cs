@@ -202,6 +202,13 @@
         /// </summary>
         protected void OnCompareTargetChanged()
         {
+            if (CompareTarget == CompareTarget.Value)
+            {
+                // Use property comparer in preference to type comparer
+                Comparer = PropertyConventions.Comparer.Convention(Info) ?? TypeConventions.Comparer.Convention(Info.PropertyType);
+                return;
+            }
+
             if (CompareTarget != CompareTarget.Id)
             {
                 return;

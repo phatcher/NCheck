@@ -243,19 +243,28 @@
             return new PropertyCheckExpression(pc);
         }
 
-        protected T ToValue<T>(object value, string x, string objectName)
+        /// <summary>
+        /// Try to cast an object to the required type
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="x"></param>
+        /// <param name="objectName"></param>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        protected TEntity ToValue<TEntity>(object value, string x, string objectName)
         {
             try
             {
-                return (T)value;
+                return (TEntity)value;
             }
             catch (InvalidCastException)
             {
-                throw new Exception(string.Format("{0}: Could not cast {1} value {2} ({3}) to {4}", objectName, x, value, value == null ? "Unknown" : value.GetType().Name, typeof(T).Name));
+                throw new Exception(string.Format("{0}: Could not cast {1} value {2} ({3}) to {4}", objectName, x, value, value == null ? "Unknown" : value.GetType().Name, typeof(TEntity).Name));
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("{0}: Could not cast {1} value {2} ({3}) to {4}: {5}", objectName, x, value, value == null ? "Unknown" : value.GetType().Name, typeof(T).Name, ex.Message));
+                throw new Exception(string.Format("{0}: Could not cast {1} value {2} ({3}) to {4}: {5}", objectName, x, value, value == null ? "Unknown" : value.GetType().Name, typeof(TEntity).Name, ex.Message));
             }
         }
     }

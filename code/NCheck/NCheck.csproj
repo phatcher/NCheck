@@ -52,6 +52,7 @@
     <Compile Include="CheckerBuilder.cs" />
     <Compile Include="CheckerExtensions.cs" />
     <Compile Include="CheckerFactory.cs" />
+    <Compile Include="Checking\ConventionExtensions.cs" />
     <Compile Include="Checking\Conventions.cs" />
     <Compile Include="Checking\CompareTarget.cs" />
     <Compile Include="Checking\Convention.cs" />

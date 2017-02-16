@@ -4,6 +4,9 @@ using System.Reflection;
 
 namespace NCheck
 {
+    /// <summary>
+    /// Extension methods to unwrap expressions.
+    /// </summary>
     public static class ExpressionExtensions
     {
         /// <summary>

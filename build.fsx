@@ -1,6 +1,7 @@
 /// FAKE Build script
 
-#r "packages/FAKE/tools/FakeLib.dll"
+#r "packages/build/FAKE/tools/FakeLib.dll"
+open System
 open Fake
 open Fake.AssemblyInfoFile
 open Fake.Git
@@ -20,6 +21,7 @@ let release = LoadReleaseNotes "RELEASE_NOTES.md"
 let buildDir = "./build"
 let toolsDir = getBuildParamOrDefault "tools" "./tools"
 let nugetDir = "./nuget"
+let solutionFile = "NCheck.sln"
 
 let nunitPath = toolsDir @@ "NUnit-2.6.3/bin"
 
@@ -42,7 +44,7 @@ Target "SetVersion" (fun _ ->
 )
 
 Target "Build" (fun _ ->
-    !! "./code/**/*.csproj"
+    !! solutionFile
     |> MSBuildRelease buildDir "Build"
     |> Log "AppBuild-Output: "
 )
@@ -54,6 +56,18 @@ Target "Test" (fun _ ->
           ToolPath = nunitPath
           DisableShadowCopy = true
           OutputFile = buildDir @@ "TestResults.xml"})
+)
+
+Target "SourceLink" (fun _ ->
+    let PdbGit = (fun pdbFile -> 
+        let result = ExecProcess(fun info ->
+            info.FileName <- "./packages/build/pdbgit/tools/pdbgit"
+            info.Arguments <- pdbFile)(TimeSpan.FromMinutes 2.0)
+        if (result <> 0) then
+            failwithf "pdbgit returned with non-zero exit code"
+    )
+
+    PdbGit (buildDir + "/NCheck.pdb")
 )
 
 Target "Pack" (fun _ ->
@@ -84,6 +98,7 @@ Target "Default" DoNothing
     ==> "Build"
     ==> "Test"
     ==> "Default"
+    ==> "SourceLink"
     ==> "Pack"
     ==> "Release"
 

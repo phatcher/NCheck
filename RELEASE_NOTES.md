@@ -1,3 +1,6 @@
+#### 2.2.2 (2017-02-16)
+* Fix automatic assignment of custom comparers to PropertyCheck
+
 #### 2.2.1 (2016-11-04)
 * Fix Checker<T> bug when T is a generic interface and no parent type exists.
 

@@ -1,14 +1,14 @@
-﻿namespace NCheck
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+
+using NCheck.Checking;
+
+namespace NCheck
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
-
-    using Checking;
-
     /// <summary>
     /// A factory class that provides checking facilities for objects so that property level comparisons can be easily made
     /// </summary>
@@ -111,7 +111,7 @@
         /// <param name="target">CompareTarget value to return</param>
         public void Convention<T>(CompareTarget target)
         {
-            Convention(typeof(T), target);
+            PropertyCheck.TypeConventions.Convention<T>(target);
         }
 
         /// <summary>
@@ -131,7 +131,7 @@
         /// <param name="value"></param>
         public void Convention(Func<Type, bool> func, CompareTarget value)
         {
-            PropertyCheck.TypeConventions.CompareTarget.Register(func, value);
+            PropertyCheck.TypeConventions.Convention(func, value);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@
         /// <param name="value">Equality function to apply</param>
         public void ComparerConvention<T>(Func<T, T, bool> value)
         {
-            ComparerConvention(x => (x == typeof(T)), value.ToComparerConvention());
+            PropertyCheck.TypeConventions.ComparerConvention(value);
         }
 
         /// <summary>
@@ -161,7 +161,7 @@
         /// <param name="value"></param>
         public void ComparerConvention<T>(Func<Type, bool> func, Func<T, T, bool> value)
         {
-            ComparerConvention(func, value.ToComparerConvention());
+            PropertyCheck.TypeConventions.ComparerConvention(func, value);
         }
 
         /// <summary>
@@ -171,7 +171,7 @@
         /// <param name="value"></param>
         public void ComparerConvention(Func<Type, bool> func, Func<object, object, bool> value)
         {
-            PropertyCheck.TypeConventions.Comparer.Register(func, value);
+            PropertyCheck.TypeConventions.ComparerConvention(func, value);
         }
 
         /// <summary>
@@ -181,7 +181,7 @@
         /// <param name="value"></param>
         public void ComparerConvention(Func<PropertyInfo, bool> func, Func<object, object, bool> value)
         {
-            PropertyCheck.PropertyConventions.Comparer.Register(func, value);
+            PropertyCheck.PropertyConventions.ComparerConvention(func, value);
         }
 
         /// <summary>

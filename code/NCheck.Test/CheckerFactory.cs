@@ -1,10 +1,10 @@
-﻿namespace NCheck.Test
+﻿using System;
+using System.Reflection;
+
+using NCheck.Checking;
+
+namespace NCheck.Test
 {
-    using System;
-    using System.Reflection;
-
-    using NCheck.Checking;
-
     public class CheckerFactory : NCheck.CheckerFactory
     {
         public CheckerFactory()
@@ -20,9 +20,11 @@
             Convention(x => typeof(IIdentifiable).IsAssignableFrom(x), CompareTarget.Id);
             Convention((PropertyInfo x) => x.Name == "Ignore", CompareTarget.Ignore);
 
-            // NB We have an extension to use a function for a type or we can do it explicitly if we want more context
+            // NB We have an extension to use a comparision function for a type or property or we can do it explicitly if we want more context
             ComparerConvention<double>(AbsDouble);
-            ComparerConvention<double>(x => (x == typeof(double)), AbsDouble);
+            //ComparerConvention<double>(x => x == typeof(double), AbsDouble);
+            ComparerConvention<float>(AbsFloat);
+            //ComparerConvention<float>(x => x == typeof(double), AbsFloat);
 
             Register(typeof(CheckerFactory).Assembly);
             Register(typeof(NCheck.CheckerFactory).Assembly);

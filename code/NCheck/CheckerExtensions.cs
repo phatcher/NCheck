@@ -1,12 +1,12 @@
-﻿namespace NCheck
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+
+using NCheck.Checking;
+
+namespace NCheck
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Reflection;
-
-    using Checking;
-
     /// <summary>
     /// Extension methods for the checkers.
     /// </summary>
@@ -69,10 +69,10 @@
 
             // Put the default overrides in
             conventions.Register(typeof(Guid), CompareTarget.Value);
-            conventions.Register(typeof(String), CompareTarget.Value);
-            conventions.Register(typeof(Decimal), CompareTarget.Value);
-            conventions.Register(typeof(Single), CompareTarget.Value);
-            conventions.Register(typeof(Double), CompareTarget.Value);
+            conventions.Register(typeof(string), CompareTarget.Value);
+            conventions.Register(typeof(decimal), CompareTarget.Value);
+            conventions.Register(typeof(float), CompareTarget.Value);
+            conventions.Register(typeof(double), CompareTarget.Value);
             conventions.Register(typeof(DateTime), CompareTarget.Value);
             conventions.Register(typeof(DateTimeOffset), CompareTarget.Value);
             conventions.Register(typeof(TimeSpan), CompareTarget.Value);
@@ -81,28 +81,6 @@
 
             // Type is abstract, is RuntimeType at r/t which is internal so can't handle easily
             conventions.Register(typeof(Type), CompareTarget.Value);      
-        }
-
-        /// <summary>
-        /// Converts a strongly typed function into a comparer convention
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="func"></param>
-        public static Func<object, object, bool> ToComparerConvention<T>(this Func<T, T, bool> func)
-        {
-            // NB The cast could fail at runtime and this will also cause boxing.
-            return (x, y) => func((T) x, (T) y);
-        }
-
-        /// <summary>
-        /// Register an explicit <see cref="CompareTarget"/> to use for a type.
-        /// </summary>
-        /// <param name="conventions">Comparer to register against</param>
-        /// <param name="type">Type to use</param>
-        /// <param name="target">CompareTarget to use</param>
-        public static void Register(this IConventions<Type, CompareTarget> conventions, Type type, CompareTarget target)
-        {
-            conventions.Register(x => x.FullName == type.FullName, target);
         }
 
         private static bool IsEnum(Type type)

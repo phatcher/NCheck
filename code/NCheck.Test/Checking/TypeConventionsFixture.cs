@@ -1,28 +1,28 @@
-﻿namespace NCheck.Test.Checking
+﻿using System;
+using System.Collections.Generic;
+
+using NCheck.Checking;
+
+using NUnit.Framework;
+
+namespace NCheck.Test.Checking
 {
-    using System;
-    using System.Collections.Generic;
-
-    using NCheck.Checking;
-
-    using NUnit.Framework;
-
     [TestFixture]
     public class TypeConventionsFixture
     {
         private TypeConventions conventions;
 
         [TestCase(typeof(Guid))]
-        [TestCase(typeof(String))]
-        [TestCase(typeof(Int16))]
-        [TestCase(typeof(Int32))]
-        [TestCase(typeof(Int64))]
-        [TestCase(typeof(Int16?))]
-        [TestCase(typeof(Int32?))]
-        [TestCase(typeof(Int64?))]
-        [TestCase(typeof(Double))]
-        [TestCase(typeof(Single))]
-        [TestCase(typeof(Double))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(short))]
+        [TestCase(typeof(int))]
+        [TestCase(typeof(long))]
+        [TestCase(typeof(short?))]
+        [TestCase(typeof(int?))]
+        [TestCase(typeof(long?))]
+        [TestCase(typeof(decimal))]
+        [TestCase(typeof(float))]
+        [TestCase(typeof(double))]
         [TestCase(typeof(DateTime))]
         [TestCase(typeof(DateTimeOffset))]
         [TestCase(typeof(TimeSpan))]
@@ -33,13 +33,27 @@
         [TestCase(typeof(SampleEnum))]
         public void ValueCompare(Type type)
         {
-            Assert.AreEqual(CompareTarget.Value, conventions.CompareTarget.Convention(type), "Incorrect CompareTarget for " + type.Name);
+            Assert.That(conventions.CompareTarget.Convention(type), Is.EqualTo(CompareTarget.Value),  "Incorrect CompareTarget for " + type.Name);
+        }
+
+        [Test]
+        public void StandardComparer()
+        {
+            Assert.That(conventions.Comparer.Convention(typeof(float)), Is.Null, "Incorrect Comparer for Single");
+        }
+
+        [Test]
+        public void OverrrideComparer()
+        {
+            conventions.ComparerConvention<float>(AbsFloat);
+
+            Assert.That(conventions.Comparer.Convention(typeof(float)), Is.Not.Null, "Incorrect Comparer for Single");
         }
 
         [TestCase(typeof(SampleStruct))]
         public void EntityCompare(Type type)
         {
-            Assert.AreEqual(CompareTarget.Entity, conventions.CompareTarget.Convention(type), "Incorrect CompareTarget for " + type.Name);    
+            Assert.That(conventions.CompareTarget.Convention(type), Is.EqualTo(CompareTarget.Entity), "Incorrect CompareTarget for " + type.Name);    
         }
 
         [TestCase(typeof(List<int>))]
@@ -47,7 +61,7 @@
         [TestCase(typeof(ICollection<int>))]
         public void CollectionCompare(Type type)
         {
-            Assert.AreEqual(CompareTarget.Collection, conventions.CompareTarget.Convention(type), "Incorrect CompareTarget for " + type.Name);
+            Assert.That(conventions.CompareTarget.Convention(type), Is.EqualTo(CompareTarget.Collection), "Incorrect CompareTarget for " + type.Name);
         }
 
         [Test]
@@ -56,7 +70,7 @@
             var cf = new CheckerFactory();
             cf.Convention<SampleClass>(CompareTarget.Ignore);
 
-            Assert.AreEqual(CompareTarget.Ignore, PropertyCheck.TypeConventions.CompareTarget.Convention(typeof(SampleClass)));
+            Assert.That(PropertyCheck.TypeConventions.CompareTarget.Convention(typeof(SampleClass)), Is.EqualTo(CompareTarget.Ignore));
         }
 
         [Test]
@@ -71,6 +85,16 @@
         {
             conventions = new TypeConventions();
             conventions.InitializeTypeConventions();
+        }
+
+        private bool AbsDouble(double x, double y)
+        {
+            return Math.Abs(x - y) < 0.001;
+        }
+
+        private bool AbsFloat(float x, float y)
+        {
+            return Math.Abs(x - y) < 0.001;
         }
     }
 }

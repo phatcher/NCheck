@@ -1,7 +1,9 @@
-﻿namespace NCheck.Test.Examples
-{
-    using NUnit.Framework;
+﻿using NCheck.Checking;
 
+using NUnit.Framework;
+
+namespace NCheck.Test.Examples
+{
     [TestFixture]
     public class SimpleTest
     {
@@ -18,6 +20,38 @@
             var candidate = algo.Run(source);
 
             checkerFactory.Check(expected, candidate);
+        }
+
+        [Test]
+        public void CompareDoubleAbsComparerTest()
+        {
+            var checkerFactory = new CheckerFactory();
+
+            var expected = new Simple { Id = 1, Name = "A", Value = 10.00005 };
+
+            var candidate = new Simple { Id = 1, Name = "A", Value = 10.00006 };
+
+            checkerFactory.Check(expected, candidate);
+        }
+
+        [Test]
+        public void CompareDoubleStandardComparerTest()
+        {
+            var checkerFactory = new CheckerFactory();
+            PropertyCheck.TypeConventions.Comparer.Clear();
+
+            var expected = new Simple { Id = 1, Name = "A", Value = 10.00005 };
+
+            var candidate = new Simple { Id = 1, Name = "A", Value = 10.00006 };
+
+            try
+            {
+                checkerFactory.Check(expected, candidate);
+            }
+            catch (PropertyCheckException pex)
+            {
+                Assert.That(pex.Message, Is.EqualTo("Simple.Value: Expected:<10.00005>. Actual:<10.00006>"), "Message differs");
+            }
         }
 
         [Test]
