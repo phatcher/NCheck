@@ -1,10 +1,11 @@
-﻿namespace NCheck.Checking
-{
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Reflection;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
 
+namespace NCheck.Checking
+{
     /// <summary>
     /// Checks a single property on a class.
     /// </summary>
@@ -248,6 +249,10 @@
                     checker.Check(expected, candidate, objectName);
                     break;
 
+                case CompareTarget.Dictionary:
+                    Check(checker, expected as IDictionary, candidate as IDictionary, objectName);
+                    break;
+
                 case CompareTarget.Count:
                 case CompareTarget.Collection:
                     Check(checker, expected as IEnumerable, candidate as IEnumerable, objectName);
@@ -263,12 +268,12 @@
         }
 
         /// <summary>
-        /// Check if two collections of <see typeparamref="T" /> are equal.
+        /// Check if two collections are equal.
         /// </summary>
         /// <remarks>
         /// The parameters are first checked for null, an exception is thrown if only one is null.
-        /// Second, the cardinalities of the collections are checked if the <see cref="IEnumerable{T}" /> is
-        /// also <see cref="ICollection{T}" /> which means that it supports <see cref="ICollection{T}.Count" />
+        /// Second, the cardinalities of the collections are checked if the <see cref="IEnumerable" /> is
+        /// also <see cref="ICollection" /> which means that it supports <see cref="ICollection.Count" />
         /// If these checks are passed, each item is compared in turn.
         /// </remarks>
         /// <param name="checker"></param>
@@ -277,7 +282,7 @@
         /// <param name="objectName"></param>
         protected void Check(IChecker checker, IEnumerable expected, IEnumerable candidate, string objectName)
         {
-            // Do we have two actual lists
+            // Do we have two lists
             if (CheckNullNotNull(expected, candidate, objectName))
             {
                 return;
@@ -314,7 +319,79 @@
                 Check(target, checker, enumExpected.Current, enumCandidate.Current, objectName + "[" + i++ + "]");
             }
         }
-        
+
+        /// <summary>
+        /// Check if two <see cref="IDictionary"/> are equal.
+        /// </summary>
+        /// <param name="checker"></param>
+        /// <param name="expected"></param>
+        /// <param name="candidate"></param>
+        /// <param name="objectName"></param>
+        protected void Check(IChecker checker, IDictionary expected, IDictionary candidate, string objectName)
+        {
+            // Do we have two dictionaries
+            if (CheckNullNotNull(expected, candidate, objectName))
+            {
+                return;
+            }
+
+            var ex = new List<PropertyCheckException>();
+            var sb = new StringBuilder();
+            PropertyCheckException p;
+            sb.AppendLine(objectName + " differences...");
+            var keys = new List<object>();
+            foreach (var key in expected.Keys)
+            {
+                // Track the processed keys
+                keys.Add(key);
+
+                // Does it exist
+                if (!candidate.Contains(key))
+                {
+                    p = new PropertyCheckException(key.ToString(), expected[key], "null");
+                    sb.AppendLine(p.Message);
+                    ex.Add(p);
+
+                }
+                else
+                {
+                    try
+                    {
+                        Check(expected[key], candidate[key], key.ToString());
+                    }
+                    catch (PropertyCheckException pex)
+                    {
+                        sb.AppendLine(pex.Message);
+                        ex.Add(pex);
+                    }
+                }
+            }
+
+            // Now do the reverse, excluding keys we've already processed            
+            foreach (var key in candidate.Keys)
+            {
+                if (keys.Contains(key))
+                {
+                    // Tracked it the first time around
+                    continue;
+                }
+                p = new PropertyCheckException(key.ToString(), "null", candidate[key]);
+                sb.AppendLine(p.Message);
+                ex.Add(p);
+            }
+
+            if (ex.Count != 0)
+            {
+                p = new PropertyCheckException(objectName, sb.ToString());
+                foreach (var pex in ex)
+                {
+                    p.Exceptions.Add(pex);
+                }
+
+                throw p;
+            }
+        }
+
         /// <summary>
         /// Check if both expected and candidate are null or not null
         /// </summary>

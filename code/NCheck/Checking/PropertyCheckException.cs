@@ -1,7 +1,8 @@
-﻿namespace NCheck.Checking
-{
-    using System;
+﻿using System;
+using System.Collections.Generic;
 
+namespace NCheck.Checking
+{
     /// <summary>
     /// Exception raised when a property comparison fails.
     /// </summary>
@@ -16,11 +17,22 @@
         /// <param name="expected"></param>
         /// <param name="actual"></param>
         public PropertyCheckException(string propertyName, object expected, object actual)
-            : base(string.Format(Format, propertyName, expected, actual))
+            : this(propertyName, string.Format(Format, propertyName, expected, actual))
         {
-            PropertyName = propertyName;
             ExpectedValue = expected;
             ActualValue = actual;
+        }
+
+        /// <summary>
+        /// Create a new instance of the <see cref="PropertyCheckException" /> class.
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <param name="message"></param>
+        public PropertyCheckException(string propertyName, string message)
+            : base(message)
+        {
+            PropertyName = propertyName;
+            Exceptions = new List<PropertyCheckException>();
         }
 
         /// <summary>
@@ -37,5 +49,10 @@
         /// Gets the actual value.
         /// </summary>
         public object ActualValue { get; private set; }
+
+        /// <summary>
+        /// Get the child exceptions
+        /// </summary>
+        public IList<PropertyCheckException> Exceptions { get; set; }
     }
 }

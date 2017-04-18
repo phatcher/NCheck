@@ -51,6 +51,7 @@
     <Compile Include="CheckerBuilderFixture.cs" />
     <Compile Include="CheckerFactoryFixture.cs" />
     <Compile Include="CheckerFixture.cs" />
+    <Compile Include="Checking\SampleDictionary.cs" />
     <Compile Include="Checking\NullIdentityCheckerFixture.cs" />
     <Compile Include="Checking\PropertyConventionsFixture.cs" />
     <Compile Include="Checking\SampleClass.cs" />
@@ -58,20 +59,21 @@
     <Compile Include="Checking\SampleStruct.cs" />
     <Compile Include="Checking\TypeConventionsFixture.cs" />
     <Compile Include="Child.cs" />
-    <Compile Include="ChildChecker.cs" />
+    <Compile Include="Checkers\ChildChecker.cs" />
     <Compile Include="Descendant.cs" />
+    <Compile Include="DictionaryCheckFixture.cs" />
     <Compile Include="Examples\IWrapper.cs" />
     <Compile Include="Examples\ShinyBusinessService.cs" />
     <Compile Include="Examples\Simple.cs" />
     <Compile Include="Examples\SimpleTest.cs" />
     <Compile Include="Examples\Wrapper.cs" />
-    <Compile Include="IdentifiableChecker.cs" />
+    <Compile Include="Checkers\IdentifiableChecker.cs" />
     <Compile Include="IIdentifiable.cs" />
     <Compile Include="Parent.cs" />
-    <Compile Include="ParentChecker.cs" />
+    <Compile Include="Checkers\ParentChecker.cs" />
     <Compile Include="PropertyCheckExpressionFixture.cs" />
     <Compile Include="Simple.cs" />
-    <Compile Include="SimpleChecker.cs" />
+    <Compile Include="Checkers\SimpleChecker.cs" />
     <Compile Include="Fixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

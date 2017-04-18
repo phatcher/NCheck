@@ -1,3 +1,6 @@
+#### 2.2.3 (2017-04-18)
+* Introduce Dictionary compare type to PropertyCheck with per-key comparision of IDictionary/IDictionary<K, V>
+
 #### 2.2.2 (2017-02-16)
 * Fix automatic assignment of custom comparers to PropertyCheck
 

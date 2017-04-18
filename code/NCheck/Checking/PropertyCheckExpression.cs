@@ -83,6 +83,17 @@
         }
 
         /// <summary>
+        /// Set the compare target to <see cref="CompareTarget.Dictionary"/>
+        /// </summary>
+        /// <returns></returns>
+        public PropertyCheckExpression Dictionary()
+        {
+            propertyCheck.CompareTarget = CompareTarget.Dictionary;
+
+            return this;
+        }
+
+        /// <summary>
         /// Set the compare target to <see cref="CompareTarget.Value"/>
         /// </summary>
         /// <param name="comparer">Function to determine equality</param>        

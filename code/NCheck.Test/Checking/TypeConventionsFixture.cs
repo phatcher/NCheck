@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 using NCheck.Checking;
@@ -62,6 +63,14 @@ namespace NCheck.Test.Checking
         public void CollectionCompare(Type type)
         {
             Assert.That(conventions.CompareTarget.Convention(type), Is.EqualTo(CompareTarget.Collection), "Incorrect CompareTarget for " + type.Name);
+        }
+
+        [TestCase(typeof(IDictionary))]
+        [TestCase(typeof(IDictionary<string, object>))]
+        [TestCase(typeof(Dictionary<string, object>))]
+        public void DictionaryCompare(Type type)
+        {
+            Assert.That(conventions.CompareTarget.Convention(type), Is.EqualTo(CompareTarget.Dictionary), "Incorrect CompareTarget for " + type.Name);
         }
 
         [Test]

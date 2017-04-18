@@ -1,7 +1,7 @@
-﻿namespace NCheck.Checking
-{
-    using System;
+﻿using System;
 
+namespace NCheck.Checking
+{
     /// <summary>
     /// Types of comparison we can perform.
     /// </summary>
@@ -42,6 +42,11 @@
         /// <summary>
         /// Ignore the property.
         /// </summary>
-        Ignore = 0x32
+        Ignore = 0x32,
+
+        /// <summary>
+        /// Compare the collection
+        /// </summary>
+        Dictionary = 0x64
     }
 }

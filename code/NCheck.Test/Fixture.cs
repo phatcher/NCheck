@@ -1,13 +1,13 @@
-﻿namespace NCheck.Test
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+
+using NCheck.Checking;
+
+using NUnit.Framework;
+
+namespace NCheck.Test
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq.Expressions;
-
-    using NCheck.Checking;
-
-    using NUnit.Framework;
-
     /// <summary>
     /// Base test fixture that sets up a checker factory
     /// </summary>

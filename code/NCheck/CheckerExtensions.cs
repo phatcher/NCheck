@@ -65,6 +65,8 @@ namespace NCheck
             conventions.Register(ReferenceTypeAsEntity, CompareTarget.Entity);
             conventions.Register(NonNullableStructsAsEntity, CompareTarget.Entity);
             conventions.Register(EnumerableAsCollection, CompareTarget.Collection);
+            // NB Must be before Enumerable
+            conventions.Register(DictionaryConvention, CompareTarget.Dictionary);
             conventions.Register(IsEnum, CompareTarget.Value);
 
             // Put the default overrides in
@@ -107,6 +109,11 @@ namespace NCheck
         private static bool ReferenceTypeAsEntity(Type type)
         {
             return !type.IsValueType;
+        }
+
+        private static bool DictionaryConvention(Type type)
+        {
+            return typeof(IDictionary).IsAssignableFrom(type) || (type.IsGenericType && typeof(IDictionary<,>).IsAssignableFrom(type.GetGenericTypeDefinition()));
         }
 
         private static bool EnumerableAsCollection(Type type)

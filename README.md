@@ -323,7 +323,7 @@ This will check for a specific failure in the comparsion, the other overload all
 
 ### Per-Test customization
 
-For specific tests, you might want to override the standard Checker for the class, be it automatically constructed or one you have explicitly defined.
+For specific tests, you might want to override the standard Checker for the class, be it an automatically constructed or one you have explicitly defined.
 
 To do this, ICheckerFactory exposes the Compare<T> interface used to specify property comparisons, here are some examples taken from the unit tests; the Parent checker
 has been defined to specifically ignore the Another property.
