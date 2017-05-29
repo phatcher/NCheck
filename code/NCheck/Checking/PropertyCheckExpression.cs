@@ -1,7 +1,7 @@
-﻿namespace NCheck.Checking
-{
-    using System;
+﻿using System;
 
+namespace NCheck.Checking
+{
     /// <summary>
     /// Fluent interface for <see cref="PropertyCheck" />
     /// </summary>

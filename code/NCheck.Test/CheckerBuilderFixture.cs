@@ -1,7 +1,7 @@
-﻿namespace NCheck.Test
-{
-    using NUnit.Framework;
+﻿using NUnit.Framework;
 
+namespace NCheck.Test
+{
     [TestFixture]
     public class CheckerBuilderFixture : Fixture
     {

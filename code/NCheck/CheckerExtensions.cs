@@ -13,14 +13,15 @@ namespace NCheck
     public static class CheckerExtensions
     {
         /// <summary>
-        /// Add all public properties to a comparer.
+        /// Add all properties to a comparer.
         /// </summary>
         /// <param name="compare">Comparer to use</param>
         /// <param name="type">Type to use</param>
-        public static void AutoCheck(this ICheckerCompare compare, Type type)
+        /// <param name="flags">Binding flags to use, default to Public properties</param>
+        public static void AutoCheck(this ICheckerCompare compare, Type type, BindingFlags flags = BindingFlags.Public)
         {
             // Only get directly declared properties - parent will have own checker
-            var properties = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
+            var properties = type.GetProperties(flags | BindingFlags.DeclaredOnly | BindingFlags.Instance);
 
             compare.AutoCheck(properties);
         }
@@ -52,8 +53,11 @@ namespace NCheck
         /// <param name="conventions"></param>
         public static void InitializeTypeConventions(this IConventions<Type> conventions)
         {
-            conventions.Clear();
-            conventions.CompareTarget.InitializeTypeCompareTargetConventions();
+            lock (conventions)
+            {
+                conventions.Clear();
+                conventions.CompareTarget.InitializeTypeCompareTargetConventions();
+            }
         }
 
         /// <summary>

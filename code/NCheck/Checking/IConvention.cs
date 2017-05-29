@@ -1,7 +1,7 @@
-﻿namespace NCheck.Checking
-{
-    using System;
+﻿using System;
 
+namespace NCheck.Checking
+{
     /// <summary>
     /// Determine the convention from source to target based on a comparer function based and a source
     /// </summary>

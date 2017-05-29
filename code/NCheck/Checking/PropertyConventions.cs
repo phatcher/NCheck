@@ -1,7 +1,7 @@
-﻿namespace NCheck.Checking
-{
-    using System.Reflection;
+﻿using System.Reflection;
 
+namespace NCheck.Checking
+{
     /// <summary>
     /// Implements property conventions
     /// </summary>

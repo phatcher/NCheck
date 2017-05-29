@@ -1,8 +1,8 @@
-﻿namespace NCheck.Checking
-{
-    using System;
-    using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
+namespace NCheck.Checking
+{
     /// <copydocfrom cref="IConventions{TSource, TTarget}" />
     public class Conventions<TSource, TTarget> : IConventions<TSource, TTarget>
     {

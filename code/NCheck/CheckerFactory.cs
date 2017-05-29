@@ -24,9 +24,7 @@ namespace NCheck
         {
             checkers = new Dictionary<Type, IChecker>();
 
-            PropertyCheck.IdentityChecker = new NullIdentityChecker();
-            PropertyCheck.TypeConventions = new TypeConventions();
-            PropertyCheck.PropertyConventions = new PropertyConventions();
+            //PropertyCheck.Clear();
         }
 
         /// <summary>

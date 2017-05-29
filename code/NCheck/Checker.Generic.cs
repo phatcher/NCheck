@@ -1,13 +1,13 @@
-﻿namespace NCheck
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+
+using NCheck.Checking;
+
+namespace NCheck
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
-
-    using Checking;
-
     /// <summary>
     /// Comparator used to verify that two instances of <see typeparamref="T" /> are 
     /// the same on a per property basis.
@@ -207,6 +207,22 @@
             return Compare(propertyExpression.GetPropertyInfo());
         }
 
+        /// <summary>
+        /// Add comparison to an entity checker.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="flags"></param>
+        /// <returns></returns>
+        protected PropertyCheckExpression Compare(string name, BindingFlags flags)
+        {
+            var propertyInfo = typeof(T).GetProperty(name, flags);
+            if (propertyInfo == null)
+            {
+                throw new NotSupportedException("Could not find property: " + name);
+            }
+            return Compare(propertyInfo);
+        }
+
         /// <copydocfrom cref="ICheckerCompare.Compare" />
         PropertyCheckExpression ICheckerCompare.Compare(PropertyInfo propertyInfo)
         {
@@ -218,6 +234,7 @@
         {
             return Compare(propertyInfo, PropertyCheck.DetermineCompareTarget(propertyInfo));
         }
+
 
         /// <summary>
         /// Include the property in the comparison test.

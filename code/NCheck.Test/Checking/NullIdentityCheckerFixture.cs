@@ -1,13 +1,12 @@
-﻿namespace NCheck.Test.Checking
+﻿using System;
+using System.Collections.Generic;
+
+using NCheck.Checking;
+
+using NUnit.Framework;
+
+namespace NCheck.Test.Checking
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-
-    using NCheck.Checking;
-
-    using NUnit.Framework;
-
     [TestFixture]
     public class NullIdentityCheckerFixture
     {
@@ -21,7 +20,7 @@
             Assert.IsFalse(ic.SupportsId(type));
         }
 
-        [TestCaseSource("Samples")]
+        [TestCaseSource(nameof(Samples))]
         public void ExtractReturnsNull(object value)
         {
             var ic = new NullIdentityChecker();
@@ -29,7 +28,7 @@
             Assert.IsNull(ic.ExtractId(value));
         }
 
-        public IEnumerable<object> Samples
+        public static IEnumerable<object> Samples
         {
             get
             {

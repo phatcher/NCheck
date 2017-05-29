@@ -19,6 +19,8 @@ namespace NCheck.Checking
         static PropertyCheck()
         {
             SetTypeConventionsInitializer(CheckerExtensions.InitializeTypeConventions);
+
+            Clear();
         }
 
         /// <summary>
@@ -52,7 +54,7 @@ namespace NCheck.Checking
         {
             get { return typeConventions; }
             set
-            {
+            {                
                 typeConventions = value;
                 initializer(typeConventions);
             }
@@ -92,6 +94,16 @@ namespace NCheck.Checking
         public int Length { get; set; }
 
         /// <summary>
+        /// Clear the conventions back to default
+        /// </summary>
+        public static void Clear()
+        {
+            IdentityChecker = new NullIdentityChecker();
+            TypeConventions = new TypeConventions();
+            PropertyConventions = new PropertyConventions();
+        }
+
+        /// <summary>
         /// Sets the function that initializes the <see cref="TypeConventions"/>
         /// </summary>
         /// <param name="func"></param>
@@ -126,6 +138,87 @@ namespace NCheck.Checking
             target = TypeConventions.CompareTarget.Convention(propertyInfo.PropertyType);
 
             return target != CompareTarget.Unknown ? target : CompareTarget.Value;
+        }
+
+
+        /// <summary>
+        /// Register a <see cref="CompareTarget"/> convention for a type.
+        /// </summary>
+        /// <typeparam name="T">Type to use</typeparam>
+        /// <param name="target">CompareTarget value to return</param>
+        public static void Convention<T>(CompareTarget target)
+        {
+            TypeConventions.Convention<T>(target);
+        }
+
+        /// <summary>
+        /// Register a <see cref="CompareTarget"/> convention for a type.
+        /// </summary>
+        /// <param name="type">Type to use</param>
+        /// <param name="target">CompareTarget value to return</param>
+        public static void Convention(Type type, CompareTarget target)
+        {
+            TypeConventions.CompareTarget.Register(type, target);
+        }
+
+        /// <summary>
+        /// Register a <see cref="CompareTarget"/> convention based on type information.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="value"></param>
+        public static void Convention(Func<Type, bool> func, CompareTarget value)
+        {
+            TypeConventions.Convention(func, value);
+        }
+
+        /// <summary>
+        /// Register an equality comparer convention based on property information.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="value"></param>
+        public static void Convention(Func<PropertyInfo, bool> func, CompareTarget value)
+        {
+            PropertyConventions.CompareTarget.Register(func, value);
+        }
+
+        /// <summary>
+        /// Register an equality comparer convention based on type information.
+        /// </summary>
+        /// <typeparam name="T">Type to use</typeparam>
+        /// <param name="value">Equality function to apply</param>
+        public static void ComparerConvention<T>(Func<T, T, bool> value)
+        {
+            TypeConventions.ComparerConvention(value);
+        }
+
+        /// <summary>
+        /// Register an equality comparer convention based on type information.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="value"></param>
+        public static void ComparerConvention<T>(Func<Type, bool> func, Func<T, T, bool> value)
+        {
+            TypeConventions.ComparerConvention(func, value);
+        }
+
+        /// <summary>
+        /// Register an equality comparer convention based on type information.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="value"></param>
+        public static void ComparerConvention(Func<Type, bool> func, Func<object, object, bool> value)
+        {
+            TypeConventions.ComparerConvention(func, value);
+        }
+
+        /// <summary>
+        /// Register an equality comparer convention based on property information.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <param name="value"></param>
+        public static void ComparerConvention(Func<PropertyInfo, bool> func, Func<object, object, bool> value)
+        {
+            PropertyConventions.ComparerConvention(func, value);
         }
 
         /// <summary>

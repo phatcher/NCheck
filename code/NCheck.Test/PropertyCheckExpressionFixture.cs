@@ -1,12 +1,12 @@
-﻿namespace NCheck.Test
+﻿using System;
+using System.Linq;
+
+using NCheck.Checking;
+
+using NUnit.Framework;
+
+namespace NCheck.Test
 {
-    using System;
-    using System.Linq;
-
-    using NCheck.Checking;
-
-    using NUnit.Framework;
-
     [TestFixture]
     public class PropertyCheckExpressionFixture : Fixture
     {

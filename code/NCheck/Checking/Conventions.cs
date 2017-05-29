@@ -1,7 +1,7 @@
-﻿namespace NCheck.Checking
-{
-    using System;
+﻿using System;
 
+namespace NCheck.Checking
+{
     /// <copydocfrom cref="IConventions{T}" />
     public class Conventions<TSource> : IConventions<TSource>
     {

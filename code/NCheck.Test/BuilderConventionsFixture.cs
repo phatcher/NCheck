@@ -1,9 +1,9 @@
-﻿namespace NCheck.Test
+﻿using NCheck.Checking;
+
+using NUnit.Framework;
+
+namespace NCheck.Test
 {
-    using NCheck.Checking;
-
-    using NUnit.Framework;
-
     [TestFixture]
     public class BuilderConventionsFixture : Fixture
     {
