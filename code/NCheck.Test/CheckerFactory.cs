@@ -1,52 +1,44 @@
-﻿using System;
-using System.Reflection;
-
-using NCheck.Checking;
+﻿using NCheck.Checking;
+using NCheck.Test.Checking;
 
 namespace NCheck.Test
 {
     public class CheckerFactory : NCheck.CheckerFactory
     {
-        public CheckerFactory(bool clear = false) : base()
+        public CheckerFactory()
         {
-            // Only continue if we've been asked to clear or we are not initialized yet.
-            if (clear || !(PropertyCheck.IdentityChecker is IdentifiableChecker))
-            {
-                ConfigureConventions();
-            }
+            // NB Deliberate virtual call so we invoke AssignConventions in the most derived CheckerFactory.
+            AssignConventions();
 
-            Initialize(clear);
-        }
-
-        private void Initialize(bool clear)
-        {
             Register(typeof(CheckerFactory).Assembly);
             Register(typeof(NCheck.CheckerFactory).Assembly);
         }
 
-        public static void ConfigureConventions()
+        /// <summary>
+        /// Can assigns the conventions for the instance or configure ConventionsFactory as needed.
+        /// </summary>
+        protected virtual void AssignConventions()
         {
-            PropertyCheck.IdentityChecker = new IdentifiableChecker();
+            if (ConventionsFactory.FactoryType == null)
+            {
+                // Ok, first time through so set it up
+                ConventionsFactory.IdentityCheckerFactory = () => new IdentifiableChecker();
+                ConventionsFactory.TypeConventionsFactory = c => c.AssignTypeConventions();
+                ConventionsFactory.PropertyConventionsFactory = c => c.AssignPropertyInfoConventions();
+                ConventionsFactory.ComparerConventionsFactory = c => c.AssignComparerConventions();
 
-            // NB Conventions must be before type registrations if they are to apply.
-            PropertyCheck.Convention(x => typeof(IIdentifiable).IsAssignableFrom(x), CompareTarget.Id);
-            PropertyCheck.Convention((PropertyInfo x) => x.Name == "Ignore", CompareTarget.Ignore);
+                // Mark it as setup
+                ConventionsFactory.FactoryType = GetType();
+            }
 
-            // NB We have an extension to use a comparision function for a type or property or we can do it explicitly if we want more context
-            PropertyCheck.ComparerConvention<double>(AbsDouble);
-            //PropertyCheck.ComparerConvention<double>(x => x == typeof(double), AbsDouble);
-            PropertyCheck.ComparerConvention<float>(AbsFloat);
-            //PropertyCheck.ComparerConvention<float>(x => x == typeof(double), AbsFloat);
-        }
+            // Sanity check - only needed if you are changing conventions on a per-test basis
+            if (Conventions.IdentityChecker is IdentifiableChecker)
+            {
+                // Assume it's ok
+                return;
+            }
 
-        public static bool AbsDouble(double x, double y)
-        {
-            return Math.Abs(x - y) < 0.001;
-        }
-
-        public static bool AbsFloat(float x, float y)
-        {
-            return Math.Abs(x - y) < 0.001;
+            Conventions.IdentityChecker = new IdentifiableChecker();
         }
     }
 }

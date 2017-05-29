@@ -38,7 +38,7 @@ namespace NCheck.Test.Examples
         public void CompareDoubleStandardComparerTest()
         {
             var checkerFactory = new CheckerFactory();
-            PropertyCheck.TypeConventions.Comparer.Clear();
+            ConventionsFactory.Conventions.TypeConventions.Comparer.Clear();
 
             var expected = new Simple { Id = 1, Name = "A", Value = 10.00005 };
 

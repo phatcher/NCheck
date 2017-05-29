@@ -82,7 +82,7 @@ namespace NCheck.Test
 
             // NB Need to initialize the checker factory
             var x = CheckerFactory;
-            PropertyCheck.IdentityChecker = null;
+            ConventionsFactory.Conventions.IdentityChecker = null;
 
             CheckFault(expected, candidate, "No IdentityChecker assigned, cannot perform Id check");
         }
@@ -243,7 +243,7 @@ namespace NCheck.Test
         {
             var cf = (CheckerFactory) CheckerFactory;
             cf.Clear();
-            PropertyCheck.IdentityChecker = null;
+            cf.Conventions.IdentityChecker = null;
 
             var p1 = new Parent {Id = 1, Name = "A"};
             var expected = new Child {Id = 1, Name = "Child", Parent = p1};

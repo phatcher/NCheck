@@ -58,18 +58,6 @@ Target "Test" (fun _ ->
           OutputFile = buildDir @@ "TestResults.xml"})
 )
 
-Target "SourceLink" (fun _ ->
-    let PdbGit = (fun pdbFile -> 
-        let result = ExecProcess(fun info ->
-            info.FileName <- "./packages/build/pdbgit/tools/pdbgit"
-            info.Arguments <- pdbFile)(TimeSpan.FromMinutes 2.0)
-        if (result <> 0) then
-            failwithf "pdbgit returned with non-zero exit code"
-    )
-
-    PdbGit (buildDir + "/NCheck.pdb")
-)
-
 Target "Pack" (fun _ ->
     let nugetParams p = 
       { p with 
@@ -98,7 +86,6 @@ Target "Default" DoNothing
     ==> "Build"
     ==> "Test"
     ==> "Default"
-    ==> "SourceLink"
     ==> "Pack"
     ==> "Release"
 

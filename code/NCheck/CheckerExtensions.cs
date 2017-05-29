@@ -48,20 +48,16 @@ namespace NCheck
         }
 
         /// <summary>
-        /// Sets the default behaviour for a <see cref="IConventions{Type}"/>
+        /// Sets the default behaviour for type <see cref="CompareTarget"/> conventions e.g. Enum -> Value
         /// </summary>
         /// <param name="conventions"></param>
         public static void InitializeTypeConventions(this IConventions<Type> conventions)
         {
-            lock (conventions)
-            {
-                conventions.Clear();
-                conventions.CompareTarget.InitializeTypeCompareTargetConventions();
-            }
+            conventions.CompareTarget.InitializeTypeCompareTargetConventions();
         }
 
         /// <summary>
-        /// Sets the default behaviour for a <see cref="IConventions{Type, CompareTarget}"/>
+        /// Sets the default behaviour for a <see cref="IConventions{Type, CompareTarget}"/>  e.g. Enum -> Value
         /// </summary>
         /// <param name="conventions"></param>
         public static void InitializeTypeCompareTargetConventions(this IConventions<Type, CompareTarget> conventions)
@@ -82,6 +78,7 @@ namespace NCheck
             conventions.Register(typeof(DateTime), CompareTarget.Value);
             conventions.Register(typeof(DateTimeOffset), CompareTarget.Value);
             conventions.Register(typeof(TimeSpan), CompareTarget.Value);
+            // TODO: Conditional registration if .NET or NetStandard > 2.0
             conventions.Register(typeof(TimeZone), CompareTarget.Value);
             conventions.Register(typeof(TimeZoneInfo), CompareTarget.Value);
 

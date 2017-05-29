@@ -76,9 +76,10 @@ namespace NCheck.Test.Checking
         [Test]
         public void CheckerFactoryRegisterTypeViaGeneric()
         {
-            PropertyCheck.Convention<SampleClass>(CompareTarget.Ignore);
+            var cc = new CheckerConventions();
+            cc.Convention<SampleClass>(CompareTarget.Ignore);
 
-            Assert.That(PropertyCheck.TypeConventions.CompareTarget.Convention(typeof(SampleClass)), Is.EqualTo(CompareTarget.Ignore));
+            Assert.That(cc.TypeConventions.CompareTarget.Convention(typeof(SampleClass)), Is.EqualTo(CompareTarget.Ignore));
         }
 
         [Test]

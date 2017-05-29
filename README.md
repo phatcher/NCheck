@@ -107,43 +107,151 @@ We support...
 * Property conventions: Applied to properties which satisfy a function e.g. matching a particular name
 * Comparer conventions: Operates on a type or property convention and changes Value comparison from object.Equals to a specified comparer; useful for values such putting error bound on floating point comparison.
 
-```csharp
+The suggested technique for this is to introduce an extension class to hold the factory methods
+```csharp  
+    public static class ConventionExtensions
+    {
+        public static void AssignPropertyInfoConventions(this CheckerConventions conventions)
+        {
+            //conventions.Convention(x => typeof(IIdentifiable).IsAssignableFrom(x), CompareTarget.Id);
+            conventions.Convention((PropertyInfo x) => x.Name == "Ignore", CompareTarget.Ignore);
+        }
+
+        public static void AssignTypeConventions(this CheckerConventions conventions)
+        {
+            // NB Must have this one to put base behaviour in suchs as Guid
+            conventions.TypeConventions.InitializeTypeConventions();
+
+            // NB Conventions must be after general type registrations if they are to apply.
+            conventions.Convention(x => typeof(IIdentifiable).IsAssignableFrom(x), CompareTarget.Id);
+        }
+
+        public static void AssignComparerConventions(this CheckerConventions conventions)
+        {
+            // NB We have an extension to use a function for a type or we can do it explicitly if we want more context
+            conventions.ComparerConvention<double>(AbsDouble);
+            conventions.ComparerConvention<double?>(AbsDouble);
+
+            conventions.ComparerConvention<float>(AbsFloat);
+            conventions.ComparerConvention<float?>(AbsFloat);
+            conventions.ComparerConvention<float>(x => (x == typeof(float)), AbsFloat);
+        }
+
+        public static bool AbsDouble(double? x, double? y)
+        {
+            return x.HasValue && y.HasValue && AbsDouble(x.Value, y.Value);
+        }
+
+        public static bool AbsDouble(double x, double y)
+        {
+            return NearlyEqual(x, y, 0.001);
+        }
+
+        public static bool AbsFloat(float? x, float? y)
+        {
+            return x.HasValue && y.HasValue && AbsFloat(x.Value, y.Value);
+        }
+
+        public static bool AbsFloat(float x, float y)
+        {
+            return NearlyEqual(x, y, 0.00001);
+        }
+
+        /// <summary>
+        /// Compare two floats and check if they are approximately equal
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="epsilon"></param>
+        /// <returns></returns>
+        /// <remarks>http://stackoverflow.com/questions/3874627/floating-point-comparison-functions-for-c-sharp</remarks>
+        public static bool NearlyEqual(float a, float b, float epsilon)
+        {
+            var absA = Math.Abs(a);
+            var absB = Math.Abs(b);
+            var diff = Math.Abs(a - b);
+
+            if (a == b)
+            {
+                // shortcut, handles infinities
+                return true;
+            }
+
+            if (a == 0 || b == 0 || diff < float.Epsilon)
+            {
+                // a or b is zero or both are extremely close to it
+                // relative error is less meaningful here
+                return diff < epsilon;
+            }
+
+            // use relative error
+            return diff / (absA + absB) < epsilon;
+        }
+
+        public static bool NearlyEqual(double a, double b, double epsilon)
+        {
+            var absA = Math.Abs(a);
+            var absB = Math.Abs(b);
+            var diff = Math.Abs(a - b);
+
+            if (a == b)
+            {
+                // shortcut, handles infinities
+                return true;
+            }
+
+            if (a == 0 || b == 0 || diff < double.Epsilon)
+            {
+                // a or b is zero or both are extremely close to it
+                // relative error is less meaningful here
+                return diff < epsilon;
+            }
+
+            // use relative error
+            return diff / (absA + absB) < epsilon;
+        }
+    }
+```
+
+Then it's easy to introduce this in your CheckerFactory where you register any custom checkers
+
+```csharp  
     public class CheckerFactory : NCheck.CheckerFactory
     {
         public CheckerFactory()
         {
-            PropertyCheck.IdentityChecker = new IdentifiableChecker();
+            // NB Deliberate virtual call so we invoke AssignConventions in the most derived CheckerFactory.
+            AssignConventions();
 
-            Initialize();
-        }
-
-        private void Initialize()
-        {
-            // Set us up as the global factory, used to locate the checkers later on.
-            // Also done by the builder, but this is needed if the builder is not used.
-            NCheck.Checker.CheckerFactory = this;
-
-            // NB Conventions must be before type registrations if they are to apply.
-            Convention(x => typeof(IIdentifiable).IsAssignableFrom(x), CompareTarget.Id);
-            Convention((PropertyInfo x) => x.Name == "Ignore", CompareTarget.Ignore);
-
-            // NB We have an extension to use a function for a type or we can do it explicitly if we want more context
-            ComparerConvention<double>(AbsDouble);
-            ComparerConvention<double>(x => (x == typeof(double)), AbsDouble);
-
-            // Pick up all explicitly defined checkers.
             Register(typeof(CheckerFactory).Assembly);
             Register(typeof(NCheck.CheckerFactory).Assembly);
         }
 
-        public bool AbsDouble(double x, double y)
+        /// <summary>
+        /// Can assigns the conventions for the instance or configure ConventionsFactory as needed.
+        /// </summary>
+        protected virtual void AssignConventions()
         {
-            return Math.Abs(x - y) < 0.001;
-        }
+            if (ConventionsFactory.FactoryType == null)
+            {
+                // Ok, first time through so set it up
+                ConventionsFactory.IdentityCheckerFactory = () => new IdentifiableChecker();
+                ConventionsFactory.TypeConventionsFactory = c => c.AssignTypeConventions();
+                ConventionsFactory.PropertyConventionsFactory = c => c.AssignPropertyInfoConventions();
+                ConventionsFactory.ComparerConventionsFactory = c => c.AssignComparerConventions();
 
-        public bool AbsFloat(float x, float y)
-        {
-            return Math.Abs(x - y) < 0.001;
+                // Mark it as setup
+                ConventionsFactory.FactoryType = GetType();
+            }
+
+            // Sanity check - only needed if you are changing conventions on a per-test basis
+            if (Conventions.IdentityChecker is IdentifiableChecker)
+            {
+                // Assume it's ok
+                return;
+            }
+
+            Conventions.IdentityChecker = new IdentifiableChecker();
         }
     }
 ```
@@ -156,10 +264,10 @@ CheckerFactory.Initialize.
         [Test]
         public void CheckerFactoryRegisterTypeViaGeneric()
         {
-            var cf = new CheckerFactory();
-            cf.Convention<SampleClass>(CompareTarget.Ignore);
+            var cc = new CheckerConventions();
+            cc.Convention<SampleClass>(CompareTarget.Ignore);
 
-            Assert.AreEqual(CompareTarget.Ignore, PropertyCheck.TypeConventions.CompareTarget.Convention(typeof(SampleClass)));
+            Assert.That(cc.TypeConventions.CompareTarget.Convention(typeof(SampleClass)), Is.EqualTo(CompareTarget.Ignore));
         }
 
         [Test]

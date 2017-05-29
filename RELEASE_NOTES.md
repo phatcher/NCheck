@@ -1,3 +1,7 @@
+#### 2.3.0 (2017-05-29)
+* Introduce new technique for wiring up conventions, CheckerConventions 
+* Supports multi-threaded use e.g. test fixtures using NUnit Parallelizable
+
 #### 2.2.3 (2017-04-18)
 * Introduce Dictionary compare type to PropertyCheck with per-key comparision of IDictionary/IDictionary<K, V>
 

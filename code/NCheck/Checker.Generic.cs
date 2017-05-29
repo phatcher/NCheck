@@ -21,7 +21,8 @@ namespace NCheck
 // ReSharper restore StaticFieldInGenericType
         private readonly IList<PropertyCheck> properties;
         private readonly MethodInfo parentChecker;
-        private readonly Type parentType;        
+        private readonly Type parentType;
+        private CheckerConventions conventions;
 
         /// <summary>
         /// Creates a new instance of the <see cref="Checker{T}" /> class.
@@ -35,6 +36,15 @@ namespace NCheck
                 // Get a checker for the parent
                 parentChecker = CheckParentClassMi.MakeGenericMethod(parentType);
             }
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="CheckerConventions"/>.
+        /// </summary>
+        public CheckerConventions Conventions
+        {
+            get { return conventions ?? (conventions = ConventionsFactory.Conventions); }
+            set { conventions = value; }
         }
 
         /// <summary>
@@ -232,9 +242,8 @@ namespace NCheck
         /// <copydocfrom cref="ICheckerCompare.Compare" />
         protected PropertyCheckExpression Compare(PropertyInfo propertyInfo)
         {
-            return Compare(propertyInfo, PropertyCheck.DetermineCompareTarget(propertyInfo));
+            return Compare(propertyInfo, Conventions.CompareTarget(propertyInfo));
         }
-
 
         /// <summary>
         /// Include the property in the comparison test.

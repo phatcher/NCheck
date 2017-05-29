@@ -15,6 +15,7 @@ namespace NCheck
     public class CheckerFactory : ICheckerFactory
     {        
         private readonly IDictionary<Type, IChecker> checkers;
+        private CheckerConventions conventions;
         private ICheckerBuilder checkerBuilder;
 
         /// <summary>
@@ -24,7 +25,8 @@ namespace NCheck
         {
             checkers = new Dictionary<Type, IChecker>();
 
-            //PropertyCheck.Clear();
+            // Set us up as the global factory, used to locate the checkers later on.
+            NCheck.Checker.CheckerFactory = this;
         }
 
         /// <summary>
@@ -34,6 +36,15 @@ namespace NCheck
         {
             get { return checkerBuilder ?? (checkerBuilder = new CheckerBuilder(this)); }
             set { checkerBuilder = value; }
+        }
+
+        /// <summary>
+        /// Get or sets the conventions
+        /// </summary>
+        public CheckerConventions Conventions
+        {
+            get { return conventions ?? (conventions = ConventionsFactory.Conventions); }
+            set { conventions = value; }
         }
 
         /// <summary>
@@ -107,9 +118,10 @@ namespace NCheck
         /// </summary>
         /// <typeparam name="T">Type to use</typeparam>
         /// <param name="target">CompareTarget value to return</param>
+        [Obsolete("Use CheckerConventions")]
         public void Convention<T>(CompareTarget target)
         {
-            PropertyCheck.TypeConventions.Convention<T>(target);
+            Conventions.Convention<T>(target);
         }
 
         /// <summary>
@@ -117,9 +129,10 @@ namespace NCheck
         /// </summary>
         /// <param name="type">Type to use</param>
         /// <param name="target">CompareTarget value to return</param>
+        [Obsolete("Use CheckerConventions")]
         public void Convention(Type type, CompareTarget target)
         {
-            PropertyCheck.TypeConventions.CompareTarget.Register(type, target);
+            Conventions.Convention(type, target);
         }
 
         /// <summary>
@@ -127,9 +140,10 @@ namespace NCheck
         /// </summary>
         /// <param name="func"></param>
         /// <param name="value"></param>
+        [Obsolete("Use CheckerConventions")]
         public void Convention(Func<Type, bool> func, CompareTarget value)
         {
-            PropertyCheck.TypeConventions.Convention(func, value);
+            Conventions.Convention(func, value);
         }
 
         /// <summary>
@@ -137,9 +151,10 @@ namespace NCheck
         /// </summary>
         /// <param name="func"></param>
         /// <param name="value"></param>
+        [Obsolete("Use CheckerConventions")]
         public void Convention(Func<PropertyInfo, bool> func, CompareTarget value)
         {
-            PropertyCheck.PropertyConventions.CompareTarget.Register(func, value);
+            Conventions.Convention(func, value);
         }
 
         /// <summary>
@@ -147,9 +162,10 @@ namespace NCheck
         /// </summary>
         /// <typeparam name="T">Type to use</typeparam>
         /// <param name="value">Equality function to apply</param>
+        [Obsolete("Use CheckerConventions")]
         public void ComparerConvention<T>(Func<T, T, bool> value)
         {
-            PropertyCheck.TypeConventions.ComparerConvention(value);
+            Conventions.ComparerConvention(value);
         }
 
         /// <summary>
@@ -157,9 +173,10 @@ namespace NCheck
         /// </summary>
         /// <param name="func"></param>
         /// <param name="value"></param>
+        [Obsolete("Use CheckerConventions")]
         public void ComparerConvention<T>(Func<Type, bool> func, Func<T, T, bool> value)
         {
-            PropertyCheck.TypeConventions.ComparerConvention(func, value);
+            Conventions.ComparerConvention(func, value);
         }
 
         /// <summary>
@@ -167,9 +184,10 @@ namespace NCheck
         /// </summary>
         /// <param name="func"></param>
         /// <param name="value"></param>
+        [Obsolete("Use CheckerConventions")]
         public void ComparerConvention(Func<Type, bool> func, Func<object, object, bool> value)
         {
-            PropertyCheck.TypeConventions.ComparerConvention(func, value);
+            Conventions.ComparerConvention(func, value);
         }
 
         /// <summary>
@@ -177,9 +195,10 @@ namespace NCheck
         /// </summary>
         /// <param name="func"></param>
         /// <param name="value"></param>
+        [Obsolete("Use CheckerConventions")]
         public void ComparerConvention(Func<PropertyInfo, bool> func, Func<object, object, bool> value)
         {
-            PropertyCheck.PropertyConventions.ComparerConvention(func, value);
+            Conventions.ComparerConvention(func, value);
         }
 
         /// <summary>

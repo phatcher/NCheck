@@ -11,17 +11,10 @@ namespace NCheck.Checking
     /// </summary>
     public class PropertyCheck
     {
-        private static Action<IConventions<Type>> initializer;
-        private static IConventions<Type> typeConventions;
+        private static CheckerConventions staticConventions;
+        private CheckerConventions conventions;
         private CompareTarget compareTarget;
         private Func<object, object, bool> comparer;
-
-        static PropertyCheck()
-        {
-            SetTypeConventionsInitializer(CheckerExtensions.InitializeTypeConventions);
-
-            Clear();
-        }
 
         /// <summary>
         /// Create a new instance of the <see cref="PropertyCheck" /> class
@@ -35,9 +28,29 @@ namespace NCheck.Checking
         }
 
         /// <summary>
+        /// Gets or sets the class which knows the conventions.
+        /// </summary>
+        public CheckerConventions Conventions
+        {
+            get { return conventions ?? (conventions = ConventionsFactory.Conventions); }
+            set { conventions = value; }
+        }
+
+        private static CheckerConventions StaticConventions
+        {
+            get { return staticConventions ?? (staticConventions = ConventionsFactory.Conventions); }
+            set { staticConventions = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the class which knows how to extract an Id from an object
         /// </summary>
-        public static IIdentityChecker IdentityChecker { get; set; }
+        [Obsolete("Use ConventionsFactory.Conventions")]
+        public static IIdentityChecker IdentityChecker
+        {
+            get { return StaticConventions.IdentityChecker; }
+            set { StaticConventions.IdentityChecker = value; }
+        }
 
         /// <summary>
         /// Gets or sets the class which knows the default <see cref="CompareTarget"/> for a property.
@@ -45,19 +58,21 @@ namespace NCheck.Checking
         /// This allows the introduction of conventions based on property names.
         /// </para>
         /// </summary>
-        public static IConventions<PropertyInfo> PropertyConventions { get; set; }
+        [Obsolete("Use ConventionsFactory.Conventions")]
+        public static IConventions<PropertyInfo> PropertyConventions
+        {
+            get { return StaticConventions.PropertyConventions; }
+            set { StaticConventions.PropertyConventions = value; }
+        }
 
         /// <summary>
         /// Gets or sets the class which knows the conventions for a type.
         /// </summary>
-        public static IConventions<Type> TypeConventions 
+        [Obsolete("Use ConventionsFactory.Conventions")]
+        public static IConventions<Type> TypeConventions
         {
-            get { return typeConventions; }
-            set
-            {                
-                typeConventions = value;
-                initializer(typeConventions);
-            }
+            get { return StaticConventions.TypeConventions; }
+            set { StaticConventions.TypeConventions = value; }
         }
 
         /// <summary>
@@ -92,134 +107,6 @@ namespace NCheck.Checking
         /// Gets or sets the length property, used to limit string comparisons.
         /// </summary>
         public int Length { get; set; }
-
-        /// <summary>
-        /// Clear the conventions back to default
-        /// </summary>
-        public static void Clear()
-        {
-            IdentityChecker = new NullIdentityChecker();
-            TypeConventions = new TypeConventions();
-            PropertyConventions = new PropertyConventions();
-        }
-
-        /// <summary>
-        /// Sets the function that initializes the <see cref="TypeConventions"/>
-        /// </summary>
-        /// <param name="func"></param>
-        public static void SetTypeConventionsInitializer(Action<IConventions<Type>> func)
-        {
-            initializer = func;
-        }
-
-        /// <summary>
-        /// Determine the comparison target for a property.
-        /// </summary>
-        /// <param name="propertyInfo"></param>
-        /// <returns></returns>
-        public static CompareTarget DetermineCompareTarget(PropertyInfo propertyInfo)
-        {
-            CompareTarget target;
-
-            if (PropertyConventions != null)
-            {
-                target = PropertyConventions.CompareTarget.Convention(propertyInfo);
-                if (target != CompareTarget.Unknown)
-                {
-                    return target;
-                }
-            }
-
-            if (TypeConventions == null)
-            {
-                throw new NotSupportedException("No type conventions assigned to PropertyCheck");
-            }
-
-            target = TypeConventions.CompareTarget.Convention(propertyInfo.PropertyType);
-
-            return target != CompareTarget.Unknown ? target : CompareTarget.Value;
-        }
-
-
-        /// <summary>
-        /// Register a <see cref="CompareTarget"/> convention for a type.
-        /// </summary>
-        /// <typeparam name="T">Type to use</typeparam>
-        /// <param name="target">CompareTarget value to return</param>
-        public static void Convention<T>(CompareTarget target)
-        {
-            TypeConventions.Convention<T>(target);
-        }
-
-        /// <summary>
-        /// Register a <see cref="CompareTarget"/> convention for a type.
-        /// </summary>
-        /// <param name="type">Type to use</param>
-        /// <param name="target">CompareTarget value to return</param>
-        public static void Convention(Type type, CompareTarget target)
-        {
-            TypeConventions.CompareTarget.Register(type, target);
-        }
-
-        /// <summary>
-        /// Register a <see cref="CompareTarget"/> convention based on type information.
-        /// </summary>
-        /// <param name="func"></param>
-        /// <param name="value"></param>
-        public static void Convention(Func<Type, bool> func, CompareTarget value)
-        {
-            TypeConventions.Convention(func, value);
-        }
-
-        /// <summary>
-        /// Register an equality comparer convention based on property information.
-        /// </summary>
-        /// <param name="func"></param>
-        /// <param name="value"></param>
-        public static void Convention(Func<PropertyInfo, bool> func, CompareTarget value)
-        {
-            PropertyConventions.CompareTarget.Register(func, value);
-        }
-
-        /// <summary>
-        /// Register an equality comparer convention based on type information.
-        /// </summary>
-        /// <typeparam name="T">Type to use</typeparam>
-        /// <param name="value">Equality function to apply</param>
-        public static void ComparerConvention<T>(Func<T, T, bool> value)
-        {
-            TypeConventions.ComparerConvention(value);
-        }
-
-        /// <summary>
-        /// Register an equality comparer convention based on type information.
-        /// </summary>
-        /// <param name="func"></param>
-        /// <param name="value"></param>
-        public static void ComparerConvention<T>(Func<Type, bool> func, Func<T, T, bool> value)
-        {
-            TypeConventions.ComparerConvention(func, value);
-        }
-
-        /// <summary>
-        /// Register an equality comparer convention based on type information.
-        /// </summary>
-        /// <param name="func"></param>
-        /// <param name="value"></param>
-        public static void ComparerConvention(Func<Type, bool> func, Func<object, object, bool> value)
-        {
-            TypeConventions.ComparerConvention(func, value);
-        }
-
-        /// <summary>
-        /// Register an equality comparer convention based on property information.
-        /// </summary>
-        /// <param name="func"></param>
-        /// <param name="value"></param>
-        public static void ComparerConvention(Func<PropertyInfo, bool> func, Func<object, object, bool> value)
-        {
-            PropertyConventions.ComparerConvention(func, value);
-        }
 
         /// <summary>
         /// 
@@ -263,13 +150,13 @@ namespace NCheck.Checking
                 return;
             }
 
-            if (IdentityChecker == null)
+            if (Conventions.IdentityChecker == null)
             {
                 throw new NotSupportedException("No IdentityChecker assigned, cannot perform Id check");
             }
 
-            var expectedId = IdentityChecker.ExtractId(expected);
-            var candidateId = IdentityChecker.ExtractId(candidate);
+            var expectedId = Conventions.IdentityChecker.ExtractId(expected);
+            var candidateId = Conventions.IdentityChecker.ExtractId(candidate);
             Check(expectedId, candidateId, objectName);
         }
 
@@ -299,7 +186,7 @@ namespace NCheck.Checking
             if (CompareTarget == CompareTarget.Value)
             {
                 // Use property comparer in preference to type comparer
-                Comparer = PropertyConventions.Comparer.Convention(Info) ?? TypeConventions.Comparer.Convention(Info.PropertyType);
+                Comparer = Conventions.PropertyConventions.Comparer.Convention(Info) ?? Conventions.TypeConventions.Comparer.Convention(Info.PropertyType);
                 return;
             }
 
@@ -308,12 +195,12 @@ namespace NCheck.Checking
                 return;
             }
 
-            if (IdentityChecker == null)
+            if (Conventions.IdentityChecker == null)
             {
                 throw new NotSupportedException("No IdentityChecker assigned, cannot perform Id check");
             }
 
-            if (!IdentityChecker.SupportsId(Info.PropertyType))
+            if (!Conventions.IdentityChecker.SupportsId(Info.PropertyType))
             {
                 throw new NotSupportedException(string.Format("Property {0}: type ({1}) must support Id check", Info.Name, Info.PropertyType));
             }
@@ -402,11 +289,11 @@ namespace NCheck.Checking
                 if (type == null)
                 {
                     type = enumExpected.Current.GetType();
-                    if (TypeConventions == null)
+                    if (Conventions.TypeConventions == null)
                     {
                         throw new NotSupportedException("No type conventions assigned to PropertyCheck");
                     }
-                    target = TypeConventions.CompareTarget.Convention(type);
+                    target = Conventions.TypeConventions.CompareTarget.Convention(type);
                 }
                 enumCandidate.MoveNext();
                 Check(target, checker, enumExpected.Current, enumCandidate.Current, objectName + "[" + i++ + "]");

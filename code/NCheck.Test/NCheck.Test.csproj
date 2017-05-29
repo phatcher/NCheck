@@ -52,6 +52,7 @@
     <Compile Include="CheckerBuilderFixture.cs" />
     <Compile Include="CheckerFactoryFixture.cs" />
     <Compile Include="CheckerFixture.cs" />
+    <Compile Include="Checking\ConventionExtensions.cs" />
     <Compile Include="Checking\SampleDictionary.cs" />
     <Compile Include="Checking\NullIdentityCheckerFixture.cs" />
     <Compile Include="Checking\PropertyConventionsFixture.cs" />
