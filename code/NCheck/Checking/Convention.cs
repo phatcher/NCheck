@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NCheck.Checking
 {
@@ -7,6 +8,7 @@ namespace NCheck.Checking
     public class Conventions<TSource, TTarget> : IConventions<TSource, TTarget>
     {
         private readonly List<KeyValuePair<Func<TSource, bool>, TTarget>> conventions;
+        private readonly object syncLock;
 
         /// <summary>
         /// Creates a new instance of the <see cref="Conventions{T, U}" /> class.
@@ -14,6 +16,7 @@ namespace NCheck.Checking
         public Conventions()
         {
             conventions = new List<KeyValuePair<Func<TSource, bool>, TTarget>>();
+            syncLock = new object();
             DefaultConvention = default(TTarget);
         }
 
@@ -25,13 +28,17 @@ namespace NCheck.Checking
         /// <copydocfrom cref="IConventions{T}" />
         public void Clear()
         {
-            conventions.Clear();
+            lock (syncLock)
+            {
+                conventions.Clear();
+            }
         }
 
         /// <copydocfrom cref="IConventions{T}" />
         public TTarget Convention(TSource source)
         {
-            foreach (var kvp in conventions)
+            // Snapshot the list so we can handle if another thread changes it
+            foreach (var kvp in conventions.ToList())
             {
                 if (kvp.Key(source))
                 {
@@ -45,7 +52,10 @@ namespace NCheck.Checking
         /// <copydocfrom cref="IConventions{T}" />
         public void Register(Func<TSource, bool> func, TTarget value)
         {
-            conventions.Insert(0, new KeyValuePair<Func<TSource, bool>, TTarget>(func, value));
+            lock (syncLock)
+            {
+                conventions.Insert(0, new KeyValuePair<Func<TSource, bool>, TTarget>(func, value));
+            }
         }
     }
 }

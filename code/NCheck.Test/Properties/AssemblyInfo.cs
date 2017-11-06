@@ -14,4 +14,4 @@ using NUnit.Framework;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: Parallelizable(ParallelScope.None)]
+[assembly: Parallelizable(ParallelScope.Fixtures)]

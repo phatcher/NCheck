@@ -1,3 +1,6 @@
+#### 2.3.1 (2017-11-06)
+* Locking for conventions and checker, trying to support NUnit Parallelizable
+
 #### 2.3.0 (2017-05-29)
 * Introduce new technique for wiring up conventions, CheckerConventions 
 * Supports multi-threaded use e.g. test fixtures using NUnit Parallelizable

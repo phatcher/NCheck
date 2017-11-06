@@ -15,6 +15,7 @@ namespace NCheck
     public class CheckerFactory : ICheckerFactory
     {        
         private readonly IDictionary<Type, IChecker> checkers;
+        private object syncLock;
         private CheckerConventions conventions;
         private ICheckerBuilder checkerBuilder;
 
@@ -24,9 +25,13 @@ namespace NCheck
         public CheckerFactory()
         {
             checkers = new Dictionary<Type, IChecker>();
+            syncLock = new object();
 
             // Set us up as the global factory, used to locate the checkers later on.
-            NCheck.Checker.CheckerFactory = this;
+            lock (syncLock)
+            {
+                NCheck.Checker.CheckerFactory = this;
+            }
         }
 
         /// <summary>
@@ -313,27 +318,39 @@ namespace NCheck
 
         private IChecker Checker(Type type)
         {
-            if (checkers.ContainsKey(type))
+            IChecker checker;
+            if (checkers.TryGetValue(type, out checker))
             {
-                return checkers[type];
-            }
-
-            // Attempt to self-register
-            var checker = Builder.Build(type);
-            if (checker != null)
-            {
-                Register(type, checker);
-
                 return checker;
             }
 
-            throw new NotSupportedException(string.Format("No checker registered for {0}", type.FullName));
+            lock (syncLock)
+            {
+                if (checkers.TryGetValue(type, out checker))
+                {
+                    return checker;
+                }
+
+                // Attempt to self-register
+                checker = Builder.Build(type);
+                if (checker != null)
+                {
+                    Register(type, checker);
+
+                    return checker;
+                }
+
+                throw new NotSupportedException(string.Format("No checker registered for {0}", type.FullName));
+            }
         }
 
         private void Register(Type entityType, IChecker checker)
         {
-            // Use assignment so we can override an existing checker.
-            checkers[entityType] = checker;
+            lock (syncLock)
+            {
+                // Use assignment so we can override an existing checker.
+                checkers[entityType] = checker;
+            }
         }
 
         private class ListChecker : PropertyCheck

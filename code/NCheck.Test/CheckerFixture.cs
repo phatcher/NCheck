@@ -8,6 +8,7 @@ using NUnit.Framework;
 namespace NCheck.Test
 {
     [TestFixture]
+    [Parallelizable(ParallelScope.None)]
     public class CheckingFixture : Fixture
     {
         [Test]
