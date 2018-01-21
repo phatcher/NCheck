@@ -1,3 +1,6 @@
+#### 2.3.2 (2018-01-21)
+* Update tooling to VS2017
+
 #### 2.3.1 (2017-11-06)
 * Locking for conventions and checker, trying to support NUnit Parallelizable
 

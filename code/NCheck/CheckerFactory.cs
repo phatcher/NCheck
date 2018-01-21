@@ -15,7 +15,7 @@ namespace NCheck
     public class CheckerFactory : ICheckerFactory
     {        
         private readonly IDictionary<Type, IChecker> checkers;
-        private object syncLock;
+        private readonly object syncLock;
         private CheckerConventions conventions;
         private ICheckerBuilder checkerBuilder;
 
@@ -228,22 +228,12 @@ namespace NCheck
         /// <param name="assembly">Assembly to register</param>
         public CheckerFactory Register(Assembly assembly)
         {
-            foreach (var type in assembly.GetTypes())
+            lock (syncLock)
             {
-                if (!SupportsGenericInterface(type, typeof(IChecker<>)) || type.ContainsGenericParameters)
+                foreach (var type in assembly.GetTypes())
                 {
-                    continue;
+                    Register(type);
                 }
-
-                var checker = Activator.CreateInstance(type);
-                var fred = type.BaseType;
-                while (!fred.IsGenericType)
-                {
-                    fred = fred.BaseType;
-                }
-
-                var entityType = fred.GetGenericArguments();
-                Register(entityType[0], (IChecker)checker);
             }
 
             return this;
@@ -261,6 +251,33 @@ namespace NCheck
             return this;
         }
 
+
+        private void Register(Type type)
+        {
+            try
+            {
+                if (!SupportsGenericInterface(type, typeof(IChecker<>)) || type.ContainsGenericParameters)
+                {
+                    return;
+                }
+
+                var checker = Activator.CreateInstance(type);
+                var fred = type.BaseType;
+                while (!fred.IsGenericType)
+                {
+                    fred = fred.BaseType;
+                }
+
+                var entityType = fred.GetGenericArguments();
+                Register(entityType[0], (IChecker)checker);
+
+            }
+            catch (Exception ex)
+            {
+                throw new NotSupportedException("Could not register " + type.Name, ex);
+            }
+        }
+
         /// <summary>
         /// Check if a type supports a generic interface
         /// </summary>
@@ -271,17 +288,17 @@ namespace NCheck
         {
             if (candidate == null)
             {
-                throw new ArgumentNullException("candidate");
+                throw new ArgumentNullException(nameof(candidate));
             }
 
             if (candidate.IsGenericType == false)
             {
-                throw new ArgumentOutOfRangeException("candidate", "Must be a generic type");
+                throw new ArgumentOutOfRangeException(nameof(candidate), "Must be a generic type");
             }
 
             if (type == null)
             {
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
             }
 
             return type.GetInterfaces().Where(i => i.IsGenericType).Any(i => candidate == i.GetGenericTypeDefinition());

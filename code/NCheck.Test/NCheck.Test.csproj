@@ -1,99 +1,26 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3BC8F529-F3D8-4DEA-9A20-541614693619}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net35</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.9.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.9.0" />
+  </ItemGroup>
+  <PropertyGroup>
+     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
+  </ItemGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <RootNamespace>NCheck.Test</RootNamespace>
-    <AssemblyName>NCheck.Test</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=3.6.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\NUnit.3.6.1\lib\net35\nunit.framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <ProjectReference Include="..\NCheck\NCheck.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\SolutionInfo.cs">
-      <Link>Properties\SolutionInfo.cs</Link>
-    </Compile>
-    <Compile Include="AutoBuildConventionsFixture.cs" />
-    <Compile Include="BuilderConventionsFixture.cs" />
-    <Compile Include="CheckerFactory.cs" />
-    <Compile Include="CheckerBuilderFixture.cs" />
-    <Compile Include="CheckerFactoryFixture.cs" />
-    <Compile Include="CheckerFixture.cs" />
-    <Compile Include="Checking\ConventionExtensions.cs" />
-    <Compile Include="Checking\SampleDictionary.cs" />
-    <Compile Include="Checking\NullIdentityCheckerFixture.cs" />
-    <Compile Include="Checking\PropertyConventionsFixture.cs" />
-    <Compile Include="Checking\SampleClass.cs" />
-    <Compile Include="Checking\SampleEnum.cs" />
-    <Compile Include="Checking\SampleStruct.cs" />
-    <Compile Include="Checking\TypeConventionsFixture.cs" />
-    <Compile Include="Child.cs" />
-    <Compile Include="Checkers\ChildChecker.cs" />
-    <Compile Include="Descendant.cs" />
-    <Compile Include="DictionaryCheckFixture.cs" />
-    <Compile Include="Examples\IWrapper.cs" />
-    <Compile Include="Examples\ShinyBusinessService.cs" />
-    <Compile Include="Examples\Simple.cs" />
-    <Compile Include="Examples\SimpleTest.cs" />
-    <Compile Include="Examples\Wrapper.cs" />
-    <Compile Include="Checkers\IdentifiableChecker.cs" />
-    <Compile Include="IIdentifiable.cs" />
-    <Compile Include="Parent.cs" />
-    <Compile Include="Checkers\ParentChecker.cs" />
-    <Compile Include="PropertyCheckExpressionFixture.cs" />
-    <Compile Include="Simple.cs" />
-    <Compile Include="Checkers\SimpleChecker.cs" />
-    <Compile Include="Fixture.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NCheck\NCheck.csproj">
-      <Project>{2142b3cb-f601-424e-991a-ed7e7fb63693}</Project>
-      <Name>NCheck</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

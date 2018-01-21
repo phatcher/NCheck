@@ -230,6 +230,7 @@ namespace NCheck
             {
                 throw new NotSupportedException("Could not find property: " + name);
             }
+
             return Compare(propertyInfo);
         }
 
@@ -242,6 +243,11 @@ namespace NCheck
         /// <copydocfrom cref="ICheckerCompare.Compare" />
         protected PropertyCheckExpression Compare(PropertyInfo propertyInfo)
         {
+            if (propertyInfo == null)
+            {
+                throw new ArgumentNullException(nameof(propertyInfo));
+            }
+
             return Compare(propertyInfo, Conventions.CompareTarget(propertyInfo));
         }
 

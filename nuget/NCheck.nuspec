@@ -3,22 +3,7 @@
     <metadata>
         <id>NCheck</id>
         <title>NCheck</title>
-        <description>Provides object checking features primarily used for state based testing</description>
         <version>1.0.0</version>
-        <licenseUrl>http://opensource.org/licenses/mit-license.php</licenseUrl>
-        <copyright>Copyright © 2014 Paul Hatcher</copyright>
         <owners>Paul Hatcher</owners>
-        <authors>@authors@</authors>
-        <projectUrl>https://github.com/phatcher/NCheck</projectUrl>
-        <releaseNotes>@releaseNotes@</releaseNotes>
-        <tags></tags>
-        <dependencies>
-        </dependencies>
-        <requireLicenseAcceptance>false</requireLicenseAcceptance>
     </metadata>
-    <files>
-        <file src="..\build\NCheck.dll" target="lib\net35" />
-        <file src="..\build\NCheck.pdb" target="lib\net35" />
-        <file src="..\build\NCheck.xml" target="lib\net35" />
-    </files>
 </package>

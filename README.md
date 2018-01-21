@@ -1,23 +1,17 @@
 NCheck
 ======
 
-Library providing object checking features primarily used for state based testing.
-
-Available as a NuGet package [NCheck](https://www.nuget.org/packages/NCheck/)
-
-Welcome to contributions from anyone.
+The [NCheck](https://www.nuget.org/packages/NCheck/) library providing object checking features primarily used for state based testing.
 
 You can see the version history [here](RELEASE_NOTES.md).
+
+[![NuGet](https://img.shields.io/nuget/v/NCheck.svg)](https://www.nuget.org/packages/NCheck/)
+[![Build status](https://ci.appveyor.com/api/projects/status/6y5wmxh8u93baffu/branch/master?svg=true)](https://ci.appveyor.com/project/PaulHatcher/csvreader/branch/master)
 
 ## Build the project
 * Windows: Run *build.cmd*
 
-I have my tools in C:\Tools so I use *build.cmd Default tools=C:\Tools encoding=UTF-8*
-
-You can also get the package directly from NuGet
-
-[![NuGet](https://img.shields.io/nuget/v/NCheck.svg)](https://www.nuget.org/packages/NCheck/)
-[![Build status](https://ci.appveyor.com/api/projects/status/6y5wmxh8u93baffu/branch/master?svg=true)](https://ci.appveyor.com/project/PaulHatcher/csvreader/branch/master)
+The tooling should be automatically installed by paket/Fake. The default build will compile and test the project, and also produce a nuget package.
 
 ## Library License
 The library is available under the [MIT License](http://en.wikipedia.org/wiki/MIT_License), for more information see the [License file][1] in the GitHub repository.

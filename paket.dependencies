@@ -5,3 +5,4 @@ group Build
 	
     nuget FAKE
     nuget Nuget.CommandLine
+    nuget NUnit.ConsoleRunner

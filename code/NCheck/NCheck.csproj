@@ -1,105 +1,33 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\packages\PdbGit.3.0.41\build\PdbGit.props" Condition="Exists('..\..\packages\PdbGit.3.0.41\build\PdbGit.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2142B3CB-F601-424E-991A-ED7E7FB63693}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net35</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>NCheck</RootNamespace>
-    <AssemblyName>NCheck</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\NCheck.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\NCheck.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup>
+    <Description>Library for state based testing</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>NCheck</PackageId>
+    <Title>NCheck</Title>
+    <Copyright>Copyright © 2014 Paul Hatcher</Copyright>
+    <PackageLicenseUrl>http://opensource.org/licenses/mit-license.php</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/phatcher/NCheck</PackageProjectUrl>
+    <PackageRequireLicenceAcceptance>False</PackageRequireLicenceAcceptance>
+    <PackageTags></PackageTags>
+    <RepositoryUrl>https://github.com/phatcher/NCheck</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Authors>Paul Hatcher</Authors>
     <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>C:\Devel\OpenSource\NCheck\NCheck.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\NCheck.snk</AssemblyOriginatorKeyFile>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\$(TargetFramework)\NCheck.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Compile Include="..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SolutionInfo.cs">
-      <Link>Properties\SolutionInfo.cs</Link>
-    </Compile>
-    <Compile Include="Checker.cs" />
-    <Compile Include="Checker.Generic.cs" />
-    <Compile Include="CheckerBuilder.cs" />
-    <Compile Include="CheckerExtensions.cs" />
-    <Compile Include="CheckerFactory.cs" />
-    <Compile Include="Checking\CheckerConventions.cs" />
-    <Compile Include="Checking\ConventionExtensions.cs" />
-    <Compile Include="Checking\Conventions.cs" />
-    <Compile Include="Checking\CompareTarget.cs" />
-    <Compile Include="Checking\Convention.cs" />
-    <Compile Include="Checking\ConventionsFactory.cs" />
-    <Compile Include="Checking\IConvention.cs" />
-    <Compile Include="Checking\IConventions.cs" />
-    <Compile Include="Checking\IIdentityChecker.cs" />
-    <Compile Include="Checking\NullIdentityChecker.cs" />
-    <Compile Include="Checking\PropertyCheck.cs" />
-    <Compile Include="Checking\PropertyCheckException.cs" />
-    <Compile Include="Checking\PropertyCheckExpression.cs" />
-    <Compile Include="Checking\PropertyConventions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Checking\TypeConventions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ExpressionExtensions.cs" />
-    <Compile Include="IChecker.cs" />
-    <Compile Include="IChecker.Generic.cs" />
-    <Compile Include="ICheckerBuilder.cs" />
-    <Compile Include="ICheckerCompare.cs" />
-    <Compile Include="ICheckerFactory.cs" />
-    <Compile Include="NullCheckerBuilder.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\PdbGit.3.0.41\build\PdbGit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\PdbGit.3.0.41\build\PdbGit.props'))" />
-    <Error Condition="!Exists('..\..\packages\PdbGit.3.0.41\build\PdbGit.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\PdbGit.3.0.41\build\PdbGit.targets'))" />
-  </Target>
-  <Import Project="..\..\packages\PdbGit.3.0.41\build\PdbGit.targets" Condition="Exists('..\..\packages\PdbGit.3.0.41\build\PdbGit.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+    <None Include="..\..\NCheck.snk" Link="Properties\NCheck.snk" />
+  </ItemGroup>  
 </Project>
