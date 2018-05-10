@@ -21,7 +21,11 @@ namespace NCheck
         public static void AutoCheck(this ICheckerCompare compare, Type type, BindingFlags flags = BindingFlags.Public)
         {
             // Only get directly declared properties - parent will have own checker
+#if !NETSTANDARD
             var properties = type.GetProperties(flags | BindingFlags.DeclaredOnly | BindingFlags.Instance);
+#else
+            var properties = type.GetTypeInfo().GetProperties(flags | BindingFlags.DeclaredOnly | BindingFlags.Instance);
+#endif
 
             compare.AutoCheck(properties);
         }
@@ -79,7 +83,9 @@ namespace NCheck
             conventions.Register(typeof(DateTimeOffset), CompareTarget.Value);
             conventions.Register(typeof(TimeSpan), CompareTarget.Value);
             // TODO: Conditional registration if .NET or NetStandard > 2.0
+#if !NETSTANDARD
             conventions.Register(typeof(TimeZone), CompareTarget.Value);
+#endif
             conventions.Register(typeof(TimeZoneInfo), CompareTarget.Value);
 
             // Type is abstract, is RuntimeType at r/t which is internal so can't handle easily
@@ -88,18 +94,28 @@ namespace NCheck
 
         private static bool IsEnum(Type type)
         {
+#if !NETSTANDARD
             return type.IsEnum;
+#else
+            return type.GetTypeInfo().IsEnum;
+#endif
         }
 
         private static bool NonNullableStructsAsEntity(Type type)
         {
-            if (!type.IsValueType)
+#if !NETSTANDARD
+            var ti = type;
+#else 
+            var ti = type.GetTypeInfo();
+#endif
+
+            if (!ti.IsValueType)
             {
                 return false;
             }
 
             // Trying to make sure we process structs as entities, but exclude nullables
-            if (!type.IsPrimitive && !type.FullName.StartsWith("System.Nullable"))
+            if (!ti.IsPrimitive && !type.FullName.StartsWith("System.Nullable"))
             {
                 return true;
             }
@@ -109,17 +125,29 @@ namespace NCheck
 
         private static bool ReferenceTypeAsEntity(Type type)
         {
+#if !NETSTANDARD
             return !type.IsValueType;
+#else
+            return !type.GetTypeInfo().IsValueType;
+#endif
         }
 
         private static bool DictionaryConvention(Type type)
         {
+#if !NETSTANDARD
             return typeof(IDictionary).IsAssignableFrom(type) || (type.IsGenericType && typeof(IDictionary<,>).IsAssignableFrom(type.GetGenericTypeDefinition()));
+#else
+            return typeof(IDictionary).GetTypeInfo().IsAssignableFrom(type) || (type.GetTypeInfo().IsGenericType && typeof(IDictionary<,>).GetTypeInfo().IsAssignableFrom(type.GetGenericTypeDefinition()));
+#endif
         }
 
         private static bool EnumerableAsCollection(Type type)
         {
+#if !NETSTANDARD
             return typeof(IEnumerable).IsAssignableFrom(type);
+#else
+            return typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(type);
+#endif
         }
     }
 }

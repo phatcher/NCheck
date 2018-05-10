@@ -217,7 +217,12 @@ namespace NCheck
                 assemblyFile += ".dll";
             }
 
+#if !NETSTANDARD
             Register(Assembly.LoadFrom(assemblyFile));
+#else
+            throw new NotSupportedException("Cannot load assemblies");
+            //Register(Assembly.LoadFromAssemblyPath(assemblyFile));
+#endif
 
             return this;
         }
@@ -256,19 +261,34 @@ namespace NCheck
         {
             try
             {
+#if !NETSTANDARD
                 if (!SupportsGenericInterface(type, typeof(IChecker<>)) || type.ContainsGenericParameters)
+#else
+                if (!SupportsGenericInterface(type, typeof(IChecker<>)) || type.GetTypeInfo().ContainsGenericParameters)
+#endif
                 {
                     return;
                 }
 
                 var checker = Activator.CreateInstance(type);
+#if !NETSTANDARD
                 var fred = type.BaseType;
+
                 while (!fred.IsGenericType)
                 {
                     fred = fred.BaseType;
                 }
 
                 var entityType = fred.GetGenericArguments();
+#else
+                var fred = type.GetTypeInfo().BaseType;
+                while (!fred.GetTypeInfo().IsGenericType)
+                {
+                    fred = fred.GetTypeInfo().BaseType;
+                }
+
+                var entityType = fred.GetTypeInfo().GetGenericArguments();
+#endif
                 Register(entityType[0], (IChecker)checker);
 
             }
@@ -291,7 +311,11 @@ namespace NCheck
                 throw new ArgumentNullException(nameof(candidate));
             }
 
+#if !NETSTANDARD
             if (candidate.IsGenericType == false)
+#else
+            if (candidate.GetTypeInfo().IsGenericType == false)
+#endif
             {
                 throw new ArgumentOutOfRangeException(nameof(candidate), "Must be a generic type");
             }
@@ -301,13 +325,21 @@ namespace NCheck
                 throw new ArgumentNullException(nameof(type));
             }
 
+#if !NETSTANDARD
             return type.GetInterfaces().Where(i => i.IsGenericType).Any(i => candidate == i.GetGenericTypeDefinition());
+#else
+            return type.GetTypeInfo().GetInterfaces().Where(i => i.GetTypeInfo().IsGenericType).Any(i => candidate == i.GetGenericTypeDefinition());
+#endif
         }
 
         private static bool Verify<T>(T candidate, T expected, string objectName)
         {
             var type = typeof(T);
+#if !NETSTANDARD
             if (!type.IsValueType)
+#else
+            if (!type.GetTypeInfo().IsValueType)
+#endif
             {
                 if (candidate == null && expected == null)
                 {

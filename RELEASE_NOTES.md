@@ -1,3 +1,6 @@
+#### 3.0.0 (2018-05-10)
+* Support net35, net452, net462 and netstandard1.5 and above
+
 #### 2.3.2 (2018-01-21)
 * Update tooling to VS2017
 

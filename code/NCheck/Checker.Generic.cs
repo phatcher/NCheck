@@ -15,10 +15,16 @@ namespace NCheck
     /// <typeparam name="T">Type whose instances we will check</typeparam>
     public class Checker<T> : Checker, IChecker<T>, IChecker, ICheckerCompare
     {
-// ReSharper disable StaticFieldInGenericType
+        // ReSharper disable StaticFieldInGenericType
+#if !NETSTANDARD
         private static readonly MethodInfo CheckClassMi = typeof(Checker<T>).GetMethod("CheckClass", BindingFlags.Static | BindingFlags.NonPublic);
         private static readonly MethodInfo CheckParentClassMi = typeof(Checker<T>).GetMethod("CheckParentClass", BindingFlags.Static | BindingFlags.NonPublic);
-// ReSharper restore StaticFieldInGenericType
+#else
+        private static readonly MethodInfo CheckClassMi = typeof(Checker<T>).GetTypeInfo().GetMethod("CheckClass", BindingFlags.Static | BindingFlags.NonPublic);
+        private static readonly MethodInfo CheckParentClassMi = typeof(Checker<T>).GetTypeInfo().GetMethod("CheckParentClass", BindingFlags.Static | BindingFlags.NonPublic);
+
+#endif
+        // ReSharper restore StaticFieldInGenericType
         private readonly IList<PropertyCheck> properties;
         private readonly MethodInfo parentChecker;
         private readonly Type parentType;
@@ -30,7 +36,11 @@ namespace NCheck
         public Checker()
         {
             properties = new List<PropertyCheck>();
+#if !NETSTANDARD
             parentType = typeof(T).BaseType;
+#else
+            parentType = typeof(T).GetTypeInfo().BaseType;
+#endif
             if (parentType != null && parentType != typeof(object) && parentType != typeof(ValueType))
             {
                 // Get a checker for the parent
@@ -43,8 +53,8 @@ namespace NCheck
         /// </summary>
         public CheckerConventions Conventions
         {
-            get { return conventions ?? (conventions = ConventionsFactory.Conventions); }
-            set { conventions = value; }
+            get => conventions ?? (conventions = ConventionsFactory.Conventions);
+            set => conventions = value;
         }
 
         /// <summary>
@@ -58,24 +68,15 @@ namespace NCheck
         }
 
         /// <copydocfrom cref="ICheckerCompare.Properties" />
-        protected IList<PropertyCheck> Properties
-        {
-            get { return properties; }
-        }
+        protected IList<PropertyCheck> Properties => properties;
 
         /// <copydocfrom cref="ICheckerCompare.Properties" />
-        ICollection<PropertyCheck> ICheckerCompare.Properties
-        {
-            get { return Properties; }
-        }
+        ICollection<PropertyCheck> ICheckerCompare.Properties => Properties;
 
         /// <summary>
         /// Gets a list of descendant types for the checker.
         /// </summary>
-        protected virtual IEnumerable<Type> Descendants
-        {
-            get { return new List<Type>(); }
-        }
+        protected virtual IEnumerable<Type> Descendants => new List<Type>();
 
         /// <summary>
         /// Check that the properties of two instances of <see typeparamref="T" /> are equal.
@@ -133,9 +134,9 @@ namespace NCheck
         protected static bool CheckClass<TClass>(object expected, object candidate, string objectName)
             where TClass : class
         {
-            if (expected is TClass)
+            if (expected is TClass @class)
             {
-                CheckerFactory.Check(expected as TClass, candidate as TClass, objectName);
+                CheckerFactory.Check(@class, candidate as TClass, objectName);
                 return true;
             }
 
@@ -163,12 +164,7 @@ namespace NCheck
         /// <param name="objectName">Name to use, displayed in error messages to disambiguate</param>
         protected virtual void CheckParent(T expected, T candidate, string objectName)
         {
-            if (parentChecker == null)
-            {
-                return;
-            }
-
-            parentChecker.Invoke(null, new object[] { expected, candidate, objectName });
+            parentChecker?.Invoke(null, new object[] { expected, candidate, objectName });
         }
 
         /// <summary>
@@ -225,7 +221,11 @@ namespace NCheck
         /// <returns></returns>
         protected PropertyCheckExpression Compare(string name, BindingFlags flags)
         {
+#if !NETSTANDARD
             var propertyInfo = typeof(T).GetProperty(name, flags);
+#else 
+            var propertyInfo = typeof(T).GetTypeInfo().GetProperty(name, flags);
+#endif
             if (propertyInfo == null)
             {
                 throw new NotSupportedException("Could not find property: " + name);
@@ -292,11 +292,11 @@ namespace NCheck
             }
             catch (InvalidCastException)
             {
-                throw new Exception(string.Format("{0}: Could not cast {1} value {2} ({3}) to {4}", objectName, x, value, value == null ? "Unknown" : value.GetType().Name, typeof(TEntity).Name));
+                throw new Exception($"{objectName}: Could not cast {x} value {value} ({(value == null ? "Unknown" : value.GetType().Name)}) to {typeof(TEntity).Name}");
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("{0}: Could not cast {1} value {2} ({3}) to {4}: {5}", objectName, x, value, value == null ? "Unknown" : value.GetType().Name, typeof(TEntity).Name, ex.Message));
+                throw new Exception($"{objectName}: Could not cast {x} value {value} ({(value == null ? "Unknown" : value.GetType().Name)}) to {typeof(TEntity).Name}: {ex.Message}");
             }
         }
     }

@@ -3,15 +3,15 @@ using System.Reflection;
 
 [assembly: AssemblyProductAttribute("NCheck")]
 [assembly: AssemblyCopyrightAttribute("Copyright � 2014 Paul Hatcher")]
-[assembly: AssemblyVersionAttribute("2.3.2")]
-[assembly: AssemblyFileVersionAttribute("2.3.2")]
-[assembly: AssemblyInformationalVersionAttribute("2.3.2 adc18c")]
+[assembly: AssemblyVersionAttribute("3.0.0")]
+[assembly: AssemblyFileVersionAttribute("3.0.0")]
+[assembly: AssemblyInformationalVersionAttribute("3.0.0 1ae996")]
 namespace System {
     internal static class AssemblyVersionInformation {
         internal const System.String AssemblyProduct = "NCheck";
         internal const System.String AssemblyCopyright = "Copyright � 2014 Paul Hatcher";
-        internal const System.String AssemblyVersion = "2.3.2";
-        internal const System.String AssemblyFileVersion = "2.3.2";
-        internal const System.String AssemblyInformationalVersion = "2.3.2 adc18c";
+        internal const System.String AssemblyVersion = "3.0.0";
+        internal const System.String AssemblyFileVersion = "3.0.0";
+        internal const System.String AssemblyInformationalVersion = "3.0.0 1ae996";
     }
 }

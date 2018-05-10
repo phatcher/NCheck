@@ -27,7 +27,9 @@ namespace NCheck.Test.Checking
         [TestCase(typeof(DateTime))]
         [TestCase(typeof(DateTimeOffset))]
         [TestCase(typeof(TimeSpan))]
+#if !NETCOREAPP
         [TestCase(typeof(TimeZone))]
+#endif
         [TestCase(typeof(TimeZoneInfo))]
         [TestCase(typeof(Type))]
         [TestCase(typeof(SampleStruct?))]

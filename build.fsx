@@ -6,6 +6,7 @@ open Fake.AssemblyInfoFile
 open Fake.Git
 open Fake.ReleaseNotesHelper
 open Fake.Testing.NUnit3
+open System.IO
 
 // Version info
 let projectName = "NCheck"
@@ -23,7 +24,7 @@ let nunitPath = toolsDir @@ "/NUnit.ConsoleRunner/tools/nunit3-console.exe"
 
 // Targets
 Target "Clean" (fun _ ->
-    CleanDir buildDir
+    CleanDirs [buildDir;]
 )
 
 Target "PackageRestore" (fun _ ->
@@ -32,7 +33,7 @@ Target "PackageRestore" (fun _ ->
     |> Log "AppBuild-Output: "
 )
 
-Target "Version" (fun _ ->
+Target "SetVersion" (fun _ ->
     let commitHash = 
         try 
             Information.getCurrentHash()
@@ -49,7 +50,7 @@ Target "Version" (fun _ ->
 
 Target "Build" (fun _ ->
     !! solutionFile
-    |> MSBuild buildDir "Build"
+    |> MSBuild "" "Build"
         [
             "Configuration", "Release"
             "Platform", "Any CPU"
@@ -62,12 +63,14 @@ Target "Build" (fun _ ->
 )
 
 Target "Test" (fun _ ->
-    !! (buildDir + "/*.Test.dll")
+    Directory.GetFiles(buildDir, "*.Test.dll", SearchOption.AllDirectories)
+    // Filter out the NET Core versions as the NUnit runner can't execute them
+    |> Array.filter (fun x -> x.Contains("netcoreapp") = false)
     |> NUnit3 (fun p ->
        {p with
           ToolPath = nunitPath
           // Oddity as this creates a build directory in the build directory
-          WorkingDir = buildDir
+          //WorkingDir = buildDir
           ShadowCopy = false})
 )
 
@@ -81,7 +84,7 @@ Target "Default" DoNothing
 
 // Dependencies
 "Clean"
-    ==> "Version"
+    ==> "SetVersion"
     ==> "PackageRestore"
     ==> "Build"
     ==> "Test"

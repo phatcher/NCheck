@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net35</TargetFramework>
-  </PropertyGroup>
-  <PropertyGroup>
+    <TargetFrameworks>net35;net45;net462;netstandard15</TargetFrameworks>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>NCheck</RootNamespace>
     <Description>Library for state based testing</Description>
@@ -13,16 +11,18 @@
     <PackageLicenseUrl>http://opensource.org/licenses/mit-license.php</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/phatcher/NCheck</PackageProjectUrl>
     <PackageRequireLicenceAcceptance>False</PackageRequireLicenceAcceptance>
-    <PackageTags></PackageTags>
+    <PackageTags>test testing tdd framework assert</PackageTags>
     <RepositoryUrl>https://github.com/phatcher/NCheck</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>Paul Hatcher</Authors>
+	<OutputPath>$(SolutionDir)/build/$(Configuration)/$(AssemblyName)/$(TargetFramework)/</OutputPath>
+	<OutDir>$(OutputPath)</OutDir>      
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>C:\Devel\OpenSource\NCheck\NCheck.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\NCheck.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\$(TargetFramework)\NCheck.xml</DocumentationFile>
+    <DocumentationFile>$(SolutionDir)/build/$(Configuration)/$(AssemblyName)/$(TargetFramework)/NCheck.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
