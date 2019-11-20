@@ -196,7 +196,7 @@ namespace NCheck.Test
 
             expected.Children.Add(c1);
 
-            CheckFault(expected, candidate, "Parent.Children.Count", 1, 0);
+            CheckFault(expected, candidate, "Parent.Children\r\nCount", 1, 0);
         }
 
         [Test]
@@ -208,7 +208,7 @@ namespace NCheck.Test
 
             candidate.Children.Add(c1);
 
-            CheckFault(expected, candidate, "Parent.Children.Count", 0, 1);
+            CheckFault(expected, candidate, "Parent.Children\r\nCount", 0, 1);
         }
 
         [Test]
@@ -222,13 +222,13 @@ namespace NCheck.Test
             var c2 = new Child {Id = 2};
             candidate.Children.Add(c2);
 
-            CheckFault(expected, candidate, "Parent.Children[0].Id", 1, 2);
+            CheckFault(expected, candidate, "Parent.Children\r\n[0].Id", 1, 2);
         }
 
         [Test]
         public void ValidateUniquePropertyInfoChecked()
         {
-            var checker = new SimpleChecker() as ICheckerCompare;
+            var checker = new SimpleChecker() as ICheckerInitializer;
 
             // Just grab one
             var expected = checker.Properties.ToList()[0];

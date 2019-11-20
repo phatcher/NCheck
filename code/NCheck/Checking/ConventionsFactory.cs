@@ -68,7 +68,7 @@ namespace NCheck.Checking
 
                 return conventions;
             }
-            set { conventions = value; }
+            set => conventions = value;
         }
     }
 }

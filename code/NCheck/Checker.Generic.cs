@@ -13,8 +13,9 @@ namespace NCheck
     /// the same on a per property basis.
     /// </summary>
     /// <typeparam name="T">Type whose instances we will check</typeparam>
-    public class Checker<T> : Checker, IChecker<T>, IChecker, ICheckerCompare
+    public class Checker<T> : Checker, IChecker<T>, IChecker, ICheckerInitializer
     {
+        // Reflection is expensive, so cache these method signatures for the duration
         // ReSharper disable StaticFieldInGenericType
 #if !NETSTANDARD
         private static readonly MethodInfo CheckClassMi = typeof(Checker<T>).GetMethod("CheckClass", BindingFlags.Static | BindingFlags.NonPublic);
@@ -25,9 +26,7 @@ namespace NCheck
 
 #endif
         // ReSharper restore StaticFieldInGenericType
-        private readonly IList<PropertyCheck> properties;
         private readonly MethodInfo parentChecker;
-        private readonly Type parentType;
         private CheckerConventions conventions;
 
         /// <summary>
@@ -35,11 +34,11 @@ namespace NCheck
         /// </summary>
         public Checker()
         {
-            properties = new List<PropertyCheck>();
+            Properties = new List<PropertyCheck>();
 #if !NETSTANDARD
-            parentType = typeof(T).BaseType;
+            var parentType = typeof(T).BaseType;
 #else
-            parentType = typeof(T).GetTypeInfo().BaseType;
+            var parentType = typeof(T).GetTypeInfo().BaseType;
 #endif
             if (parentType != null && parentType != typeof(object) && parentType != typeof(ValueType))
             {
@@ -67,11 +66,11 @@ namespace NCheck
             get { return Properties.FirstOrDefault(x => x.Info.Name == name); }
         }
 
-        /// <copydocfrom cref="ICheckerCompare.Properties" />
-        protected IList<PropertyCheck> Properties => properties;
+        /// <copydocfrom cref="ICheckerInitializer.Properties" />
+        protected IList<PropertyCheck> Properties { get; }
 
-        /// <copydocfrom cref="ICheckerCompare.Properties" />
-        ICollection<PropertyCheck> ICheckerCompare.Properties => Properties;
+        /// <copydocfrom cref="ICheckerInitializer.Properties" />
+        ICollection<PropertyCheck> ICheckerInitializer.Properties => Properties;
 
         /// <summary>
         /// Gets a list of descendant types for the checker.
@@ -124,19 +123,20 @@ namespace NCheck
         }
 
         /// <summary>
-        /// Checks an entity to see if it satisfies a class constraint
+        /// Checks an entity to see if it satisfies a class constraint and if so check it.
         /// </summary>
         /// <typeparam name="TClass">Type of class to check.</typeparam>
         /// <param name="expected">Expected object to use</param>
         /// <param name="candidate">Candidate object to use</param>
         /// <param name="objectName">Name to use, displayed in error messages to disambiguate</param>
         /// <returns>true if the instance pass, otherwise false.</returns>
+        /// <remarks>Invoked via reflection i.e. CheckClassMi</remarks>
         protected static bool CheckClass<TClass>(object expected, object candidate, string objectName)
             where TClass : class
         {
-            if (expected is TClass @class)
+            if (expected is TClass entity)
             {
-                CheckerFactory.Check(@class, candidate as TClass, objectName);
+                CheckerFactory.Check(entity, candidate as TClass, objectName);
                 return true;
             }
 
@@ -150,6 +150,7 @@ namespace NCheck
         /// <param name="expected">Expected object to use</param>
         /// <param name="candidate">Candidate object to use</param>
         /// <param name="objectName">Name to use, displayed in error messages to disambiguate</param>
+        /// <remarks>Invoked via reflection i.e. CheckParentClassMi</remarks>
         protected static void CheckParentClass<TClass>(object expected, object candidate, string objectName)
             where TClass : class
         {
@@ -234,13 +235,13 @@ namespace NCheck
             return Compare(propertyInfo);
         }
 
-        /// <copydocfrom cref="ICheckerCompare.Compare" />
-        PropertyCheckExpression ICheckerCompare.Compare(PropertyInfo propertyInfo)
+        /// <copydocfrom cref="ICheckerInitializer.Compare" />
+        PropertyCheckExpression ICheckerInitializer.Compare(PropertyInfo propertyInfo)
         {
             return Compare(propertyInfo);
         }
 
-        /// <copydocfrom cref="ICheckerCompare.Compare" />
+        /// <copydocfrom cref="ICheckerInitializer.Compare" />
         protected PropertyCheckExpression Compare(PropertyInfo propertyInfo)
         {
             if (propertyInfo == null)

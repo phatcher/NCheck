@@ -36,26 +36,24 @@ namespace NCheck
                 return null;
             }
 
-            var me = expression.Body as MemberExpression;
-            if (me != null)
+            switch (expression.Body)
             {
-                return me;
-            }
+                case MemberExpression me:
+                    return me;
 
-            var ue = expression.Body as UnaryExpression;
-            if (ue != null)
-            {
-                var operand = ue.Operand;
-                var memberExpression = operand as MemberExpression;
-                if (memberExpression != null)
+                case UnaryExpression ue:
                 {
-                    return memberExpression;
-                }
+                    var operand = ue.Operand;
+                    switch (operand)
+                    {
+                        case MemberExpression memberExpression:
+                            return memberExpression;
 
-                var callExpression = operand as MethodCallExpression;
-                if (callExpression != null)
-                {
-                    return callExpression.Object as MemberExpression;
+                        case MethodCallExpression callExpression:
+                            return callExpression.Object as MemberExpression;
+                    }
+
+                    break;
                 }
             }
 

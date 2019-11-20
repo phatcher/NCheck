@@ -1,3 +1,9 @@
+#### 4.0.0 (2019-11-20)
+* Rework dictionary/list checking to get per-element reporting
+* Support net472, net48 and netstandard2.0 
+* SourceLink support
+* Internal refactoring for clarity and removed obsolete code
+
 #### 3.0.0 (2018-05-10)
 * Support net35, net452, net462 and netstandard1.5 and above
 

@@ -17,7 +17,7 @@ namespace NCheck
         private readonly IDictionary<Type, IChecker> checkers;
         private readonly object syncLock;
         private CheckerConventions conventions;
-        private ICheckerBuilder checkerBuilder;
+        private ICheckerBuilder builder;
 
         /// <summary>
         /// Initializes a new instance of the CheckerClassFactory class.
@@ -39,8 +39,8 @@ namespace NCheck
         /// </summary>
         public ICheckerBuilder Builder
         {
-            get { return checkerBuilder ?? (checkerBuilder = new CheckerBuilder(this)); }
-            set { checkerBuilder = value; }
+            get => builder ?? (builder = new CheckerBuilder(this));
+            set => builder = value;
         }
 
         /// <summary>
@@ -48,8 +48,8 @@ namespace NCheck
         /// </summary>
         public CheckerConventions Conventions
         {
-            get { return conventions ?? (conventions = ConventionsFactory.Conventions); }
-            set { conventions = value; }
+            get => conventions ?? (conventions = ConventionsFactory.Conventions);
+            set => conventions = value;
         }
 
         /// <summary>
@@ -60,14 +60,24 @@ namespace NCheck
             checkers.Clear();
         }
 
-        /// <copydocfrom cref="ICheckerFactory.Check{T}(IEnumerable{T}, IEnumerable{T}, string)" />
-        public void Check<T>(IEnumerable<T> expectedList, IEnumerable<T> candidateList, string objectName = "")
+        /// <summary>
+        /// General entry point that works out which checker to invoke.
+        /// </summary>
+        /// <param name="expected">Object containing expected values</param>
+        /// <param name="candidate">Object containing values to check</param>
+        /// <param name="objectName">Name of the object, used to disambiguate error messages</param>
+        /// <remarks>
+        /// We use the expected to determine the type of the checker.
+        /// </remarks>
+        public void Check(object expected, object candidate, string objectName = "")
         {
-            var checker = Checker<T>();
-            var listChecker = new ListChecker();
+            if (expected == null && candidate == null)
+            {
+                return;
+            }
 
-            // NB Can't call Check as this retrieves via the property info which we don't have here.
-            listChecker.CheckList(checker as IChecker, expectedList, candidateList, objectName);
+            var type = expected != null ? expected.GetType() : candidate.GetType();
+            Checker(type).Check(expected, candidate, objectName);
         }
 
         /// <copydocfrom cref="ICheckerFactory.Check{T}(IEnumerable{T}, IEnumerable{T}, string)" />
@@ -79,24 +89,14 @@ namespace NCheck
             }
         }
 
-        /// <summary>
-        /// General entry point that works out which checker to invoke.
-        /// </summary>
-        /// <param name="expected">Object containing expected values</param>
-        /// <param name="candidate">Object containing values to check</param>
-        /// <param name="objectName">Name of the object, used to disambiguate error messages</param>
-        /// <remarks>
-        /// We use the expected to determine the type of the checker.
-        /// </remarks>        
-        public void Check(object expected, object candidate, string objectName = "")
+        /// <copydocfrom cref="ICheckerFactory.Check{T}(IEnumerable{T}, IEnumerable{T}, string)" />
+        public void Check<T>(IEnumerable<T> expectedList, IEnumerable<T> candidateList, string objectName = "")
         {
-            if (expected == null && candidate == null)
-            {
-                return;
-            }
+            var checker = Checker<T>();
+            var listChecker = new ListChecker();
 
-            var type = expected != null ? expected.GetType() : candidate.GetType();
-            Checker(type).Check(expected, candidate, objectName);
+            // NB Can't call Check as this retrieves via the property info which we don't have here.
+            listChecker.CheckList(checker as IChecker, expectedList, candidateList, objectName);
         }
 
         /// <copydocfrom cref="ICheckerFactory.CheckParent{T}" />
@@ -112,98 +112,10 @@ namespace NCheck
         public PropertyCheckExpression Compare<T>(Expression<Func<T, object>> propertyExpression)
         {
             // Get the checker for the entity
-            var checker = (ICheckerCompare) Checker<T>();
+            var checker = (ICheckerInitializer) Checker<T>();
 
             // Expose the property checker expression for the property.
             return checker.Compare(propertyExpression.GetPropertyInfo());
-        }
-
-        /// <summary>
-        /// Register a <see cref="CompareTarget"/> convention for a type.
-        /// </summary>
-        /// <typeparam name="T">Type to use</typeparam>
-        /// <param name="target">CompareTarget value to return</param>
-        [Obsolete("Use CheckerConventions")]
-        public void Convention<T>(CompareTarget target)
-        {
-            Conventions.Convention<T>(target);
-        }
-
-        /// <summary>
-        /// Register a <see cref="CompareTarget"/> convention for a type.
-        /// </summary>
-        /// <param name="type">Type to use</param>
-        /// <param name="target">CompareTarget value to return</param>
-        [Obsolete("Use CheckerConventions")]
-        public void Convention(Type type, CompareTarget target)
-        {
-            Conventions.Convention(type, target);
-        }
-
-        /// <summary>
-        /// Register a <see cref="CompareTarget"/> convention based on type information.
-        /// </summary>
-        /// <param name="func"></param>
-        /// <param name="value"></param>
-        [Obsolete("Use CheckerConventions")]
-        public void Convention(Func<Type, bool> func, CompareTarget value)
-        {
-            Conventions.Convention(func, value);
-        }
-
-        /// <summary>
-        /// Register an equality comparer convention based on property information.
-        /// </summary>
-        /// <param name="func"></param>
-        /// <param name="value"></param>
-        [Obsolete("Use CheckerConventions")]
-        public void Convention(Func<PropertyInfo, bool> func, CompareTarget value)
-        {
-            Conventions.Convention(func, value);
-        }
-
-        /// <summary>
-        /// Register an equality comparer convention based on type information.
-        /// </summary>
-        /// <typeparam name="T">Type to use</typeparam>
-        /// <param name="value">Equality function to apply</param>
-        [Obsolete("Use CheckerConventions")]
-        public void ComparerConvention<T>(Func<T, T, bool> value)
-        {
-            Conventions.ComparerConvention(value);
-        }
-
-        /// <summary>
-        /// Register an equality comparer convention based on type information.
-        /// </summary>
-        /// <param name="func"></param>
-        /// <param name="value"></param>
-        [Obsolete("Use CheckerConventions")]
-        public void ComparerConvention<T>(Func<Type, bool> func, Func<T, T, bool> value)
-        {
-            Conventions.ComparerConvention(func, value);
-        }
-
-        /// <summary>
-        /// Register an equality comparer convention based on type information.
-        /// </summary>
-        /// <param name="func"></param>
-        /// <param name="value"></param>
-        [Obsolete("Use CheckerConventions")]
-        public void ComparerConvention(Func<Type, bool> func, Func<object, object, bool> value)
-        {
-            Conventions.ComparerConvention(func, value);
-        }
-
-        /// <summary>
-        /// Register an equality comparer convention based on property information.
-        /// </summary>
-        /// <param name="func"></param>
-        /// <param name="value"></param>
-        [Obsolete("Use CheckerConventions")]
-        public void ComparerConvention(Func<PropertyInfo, bool> func, Func<object, object, bool> value)
-        {
-            Conventions.ComparerConvention(func, value);
         }
 
         /// <summary>
@@ -367,8 +279,7 @@ namespace NCheck
 
         private IChecker Checker(Type type)
         {
-            IChecker checker;
-            if (checkers.TryGetValue(type, out checker))
+            if (checkers.TryGetValue(type, out var checker))
             {
                 return checker;
             }
@@ -389,7 +300,7 @@ namespace NCheck
                     return checker;
                 }
 
-                throw new NotSupportedException(string.Format("No checker registered for {0}", type.FullName));
+                throw new NotSupportedException($"No checker registered for {type.FullName}");
             }
         }
 

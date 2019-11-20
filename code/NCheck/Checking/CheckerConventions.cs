@@ -75,7 +75,7 @@ namespace NCheck.Checking
         }
 
         /// <summary>
-        /// Register an equality comparer convention based on property information.
+        /// Register a <see cref="CompareTarget"/> convention based on property information.
         /// </summary>
         /// <param name="func"></param>
         /// <param name="value"></param>

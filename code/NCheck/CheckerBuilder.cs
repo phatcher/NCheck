@@ -29,10 +29,10 @@
             var checkerType = genericType.MakeGenericType(type);
 
             var checker = (IChecker)Activator.CreateInstance(checkerType);
-            var compare = (ICheckerCompare)checker;
+            var initializer = (ICheckerInitializer)checker;
 
             // Standard set of comparers
-            compare.AutoCheck(type);
+            initializer.AutoCheck(type);
 
             return checker;
         }

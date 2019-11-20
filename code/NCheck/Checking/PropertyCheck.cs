@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace NCheck.Checking
 {
@@ -11,7 +10,6 @@ namespace NCheck.Checking
     /// </summary>
     public class PropertyCheck
     {
-        private static CheckerConventions staticConventions;
         private CheckerConventions conventions;
         private CompareTarget compareTarget;
         private Func<object, object, bool> comparer;
@@ -32,62 +30,23 @@ namespace NCheck.Checking
         /// </summary>
         public CheckerConventions Conventions
         {
-            get { return conventions ?? (conventions = ConventionsFactory.Conventions); }
-            set { conventions = value; }
-        }
-
-        private static CheckerConventions StaticConventions
-        {
-            get { return staticConventions ?? (staticConventions = ConventionsFactory.Conventions); }
-            set { staticConventions = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the class which knows how to extract an Id from an object
-        /// </summary>
-        [Obsolete("Use ConventionsFactory.Conventions")]
-        public static IIdentityChecker IdentityChecker
-        {
-            get { return StaticConventions.IdentityChecker; }
-            set { StaticConventions.IdentityChecker = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the class which knows the default <see cref="CompareTarget"/> for a property.
-        /// <para>
-        /// This allows the introduction of conventions based on property names.
-        /// </para>
-        /// </summary>
-        [Obsolete("Use ConventionsFactory.Conventions")]
-        public static IConventions<PropertyInfo> PropertyConventions
-        {
-            get { return StaticConventions.PropertyConventions; }
-            set { StaticConventions.PropertyConventions = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the class which knows the conventions for a type.
-        /// </summary>
-        [Obsolete("Use ConventionsFactory.Conventions")]
-        public static IConventions<Type> TypeConventions
-        {
-            get { return StaticConventions.TypeConventions; }
-            set { StaticConventions.TypeConventions = value; }
+            get => conventions ?? (conventions = ConventionsFactory.Conventions);
+            set => conventions = value;
         }
 
         /// <summary>
         /// Gets the <see cref="PropertyInfo"/> used to access values on the object.
         /// </summary>
-        public PropertyInfo Info { get; private set; }
+        public PropertyInfo Info { get; }
 
         /// <summary>
-        /// Gets or sets the comparer use to determine equality for <see cref="NCheck.Checking.CompareTarget.Id"/> and <see cref="NCheck.Checking.CompareTarget.Value"/>
+        /// Gets or sets the comparer use to determine equality for <see cref="Checking.CompareTarget.Id"/> and <see cref="NCheck.Checking.CompareTarget.Value"/>
         /// </summary>
         /// <remarks>Default method is object.Equals</remarks>
-        public Func<object, object, bool> Comparer 
+        public Func<object, object, bool> Comparer
         {
-            get { return comparer ?? (comparer = Equals); }
-            set { comparer = value; }
+            get => comparer ?? (comparer = Equals);
+            set => comparer = value;
         }
 
         /// <summary>
@@ -96,13 +55,14 @@ namespace NCheck.Checking
         /// </summary>
         public CompareTarget CompareTarget
         {
-            get { return compareTarget; }
+            get => compareTarget;
             set
             {
                 compareTarget = value;
                 OnCompareTargetChanged();
             }
         }
+
         /// <summary>
         /// Gets or sets the length property, used to limit string comparisons.
         /// </summary>
@@ -186,7 +146,8 @@ namespace NCheck.Checking
             if (CompareTarget == CompareTarget.Value)
             {
                 // Use property comparer in preference to type comparer
-                Comparer = Conventions.PropertyConventions.Comparer.Convention(Info) ?? Conventions.TypeConventions.Comparer.Convention(Info.PropertyType);
+                Comparer = Conventions.PropertyConventions.Comparer.Convention(Info) ??
+                           Conventions.TypeConventions.Comparer.Convention(Info.PropertyType);
                 return;
             }
 
@@ -202,7 +163,7 @@ namespace NCheck.Checking
 
             if (!Conventions.IdentityChecker.SupportsId(Info.PropertyType))
             {
-                throw new NotSupportedException(string.Format("Property {0}: type ({1}) must support Id check", Info.Name, Info.PropertyType));
+                throw new NotSupportedException($"Property {Info.Name}: type ({Info.PropertyType}) must support Id check");
             }
         }
 
@@ -214,7 +175,8 @@ namespace NCheck.Checking
         /// <param name="expected"></param>
         /// <param name="candidate"></param>
         /// <param name="objectName"></param>
-        protected void Check(CompareTarget target, IChecker checker, object expected, object candidate, string objectName)
+        protected void Check(CompareTarget target, IChecker checker, object expected, object candidate,
+            string objectName)
         {
             switch (target)
             {
@@ -268,35 +230,39 @@ namespace NCheck.Checking
                 return;
             }
 
-            CheckCardinality(expected, candidate, objectName);
-            if (CompareTarget == CompareTarget.Count)
+            var tracker = new ExceptionTracker(objectName);
+            var canIterate = CheckCardinality(tracker, expected, candidate, objectName);
+            if (CompareTarget != CompareTarget.Count && canIterate)
             {
-                // We're done
-                return;
+                // Ok, step both iterators together, might not work as they could have a different cardinality
+                var i = 0;
+                var enumExpected = expected.GetEnumerator();
+                var enumCandidate = candidate.GetEnumerator();
+
+                enumExpected.Reset();
+                enumCandidate.Reset();
+                try
+                {
+                    while (enumExpected.MoveNext())
+                    {
+                        enumCandidate.MoveNext();
+
+                        CheckElement(tracker, checker, enumExpected.Current, enumCandidate.Current, $"[{i++}]");
+                    }
+                }
+                catch (InvalidOperationException ex)
+                {
+                    if (ex.Message != "Enumeration has either not started or has already finished.")
+                    {
+                        throw;
+                    }
+                }
             }
 
-            // Ok, step both iterator togeter, will work as these are now confirmed to have the same cardinality
-            var i = 0;
-            var enumExpected = expected.GetEnumerator();
-            var enumCandidate = candidate.GetEnumerator();
-            var target = CompareTarget.Entity;
-            Type type = null;
-
-            enumExpected.Reset();
-            enumCandidate.Reset();
-            while (enumExpected.MoveNext())
+            var p = tracker.Report(objectName);
+            if (p != null)
             {
-                if (type == null)
-                {
-                    type = enumExpected.Current.GetType();
-                    if (Conventions.TypeConventions == null)
-                    {
-                        throw new NotSupportedException("No type conventions assigned to PropertyCheck");
-                    }
-                    target = Conventions.TypeConventions.CompareTarget.Convention(type);
-                }
-                enumCandidate.MoveNext();
-                Check(target, checker, enumExpected.Current, enumCandidate.Current, objectName + "[" + i++ + "]");
+                throw p;
             }
         }
 
@@ -315,10 +281,8 @@ namespace NCheck.Checking
                 return;
             }
 
-            var ex = new List<PropertyCheckException>();
-            var sb = new StringBuilder();
-            PropertyCheckException p;
-            sb.AppendLine(objectName + " differences...");
+            var tracker = new ExceptionTracker(objectName);
+
             var keys = new List<object>();
             foreach (var key in expected.Keys)
             {
@@ -328,22 +292,11 @@ namespace NCheck.Checking
                 // Does it exist
                 if (!candidate.Contains(key))
                 {
-                    p = new PropertyCheckException(key.ToString(), expected[key], "null");
-                    sb.AppendLine(p.Message);
-                    ex.Add(p);
-
+                    tracker.Add($"[{key}]", expected[key], "null");
                 }
                 else
                 {
-                    try
-                    {
-                        Check(expected[key], candidate[key], key.ToString());
-                    }
-                    catch (PropertyCheckException pex)
-                    {
-                        sb.AppendLine(pex.Message);
-                        ex.Add(pex);
-                    }
+                    CheckElement(tracker, checker, expected[key], candidate[key], $"[{key}]");
                 }
             }
 
@@ -355,19 +308,13 @@ namespace NCheck.Checking
                     // Tracked it the first time around
                     continue;
                 }
-                p = new PropertyCheckException(key.ToString(), "null", candidate[key]);
-                sb.AppendLine(p.Message);
-                ex.Add(p);
+
+                tracker.Add($"[{key}]", "null", candidate[key]);
             }
 
-            if (ex.Count != 0)
+            var p = tracker.Report(objectName);
+            if (p != null)
             {
-                p = new PropertyCheckException(objectName, sb.ToString());
-                foreach (var pex in ex)
-                {
-                    p.Exceptions.Add(pex);
-                }
-
                 throw p;
             }
         }
@@ -399,21 +346,22 @@ namespace NCheck.Checking
             return false;
         }
 
-        private static void CheckCardinality(IEnumerable expected, IEnumerable candidate, string objectName)
+        private static bool CheckCardinality(ExceptionTracker tracker, IEnumerable expected, IEnumerable candidate, string objectName)
         {
-            var expectedList = expected as ICollection;
-            var candidateList = candidate as ICollection;
-
             // Sanity check to see if they are collections (could be just IEnumerable)
-            if (expectedList == null || candidateList == null)
+            if (!(expected is ICollection expectedList) || !(candidate is ICollection candidateList))
             {
-                return;
+                // Can't iterate 
+                return false;
             }
 
             if (expectedList.Count != candidateList.Count)
             {
-                throw new PropertyCheckException(objectName + ".Count", expectedList.Count, candidateList.Count);
+                tracker.Add("Count", expectedList.Count, candidateList.Count);
             }
+            var canIterate = expectedList.Count != 0 && candidateList.Count != 0;
+
+            return canIterate;
         }
 
         private void Check(object expected, object candidate, string objectName)
@@ -438,6 +386,39 @@ namespace NCheck.Checking
             {
                 throw new PropertyCheckException(objectName, string.Empty, ex.Message);
             }
+        }
+
+        private void CheckElement(ExceptionTracker tracker, IChecker checker, object expected, object candidate, string objectName)
+        {
+            try
+            {
+                var target = ElementCompareType(expected, candidate, objectName);
+
+                Check(target, checker, expected, candidate, objectName);
+            }
+            catch (PropertyCheckException pex)
+            {
+                tracker.Add(pex);
+            }
+        }
+
+        private CompareTarget ElementCompareType(object expected, object candidate, string objectName)
+        {
+            if (CheckNullNotNull(expected, candidate, objectName))
+            {
+                return CompareTarget.Value;
+            }
+
+            if (Conventions.TypeConventions == null)
+            {
+                throw new NotSupportedException("No type conventions assigned to PropertyCheck");
+            }
+
+            var value = expected ?? candidate;
+            var type = value?.GetType();
+            var target = Conventions.TypeConventions.CompareTarget.Convention(type);
+
+            return target;
         }
     }
 }

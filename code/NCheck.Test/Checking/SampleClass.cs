@@ -2,7 +2,9 @@
 {
     public class SampleClass : IIdentifiable
     {
-        public object Id { get; set; }
+        public int Id { get; set; }
+
+        object IIdentifiable.Id => Id;
 
         public string Name { get; set; }
 

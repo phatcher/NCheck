@@ -7,7 +7,7 @@ using NCheck.Checking;
 namespace NCheck
 {
     /// <summary>
-    /// Delivers comparators used to verify that two instances of <see typeparamref="T" /> are 
+    /// Delivers <see cref="IChecker{T}" />s used to verify that two instances of <see typeparamref="T" /> are 
     /// the same on a per property basis.
     /// </summary>
     public interface ICheckerFactory : IChecker

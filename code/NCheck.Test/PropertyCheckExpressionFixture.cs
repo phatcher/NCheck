@@ -68,7 +68,7 @@ namespace NCheck.Test
         protected override void OnSetup()
         {
             var x = CheckerFactory;
-            var checker = new SimpleChecker() as ICheckerCompare;
+            var checker = new SimpleChecker() as ICheckerInitializer;
             pc = checker.Properties.First();
             pce = new PropertyCheckExpression(pc);
         }

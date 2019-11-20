@@ -14,7 +14,7 @@ namespace NCheck.Test.Checking
 
         public static void AssignTypeConventions(this CheckerConventions conventions)
         {
-            // NB Must have this one to put base behaviour in suchs as Guid
+            // NB Must have this one to put base behaviour in such as Guid
             conventions.TypeConventions.InitializeTypeConventions();
 
             // NB Conventions must be after general type registrations if they are to apply.

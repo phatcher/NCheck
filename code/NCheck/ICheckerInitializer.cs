@@ -8,7 +8,7 @@
     /// <summary>
     /// Initialization methods for a checker
     /// </summary>
-    public interface ICheckerCompare
+    public interface ICheckerInitializer
     {
         /// <summary>
         /// Collection of <see cref="PropertyCheck"/>s to use.

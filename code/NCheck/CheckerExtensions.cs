@@ -18,7 +18,7 @@ namespace NCheck
         /// <param name="compare">Comparer to use</param>
         /// <param name="type">Type to use</param>
         /// <param name="flags">Binding flags to use, default to Public properties</param>
-        public static void AutoCheck(this ICheckerCompare compare, Type type, BindingFlags flags = BindingFlags.Public)
+        public static void AutoCheck(this ICheckerInitializer compare, Type type, BindingFlags flags = BindingFlags.Public)
         {
             // Only get directly declared properties - parent will have own checker
 #if !NETSTANDARD
@@ -33,9 +33,9 @@ namespace NCheck
         /// <summary>
         /// Add properties to a comparer.
         /// </summary>
-        /// <param name="compare">Comparer to use</param>
+        /// <param name="initializer">Checker initializer to use</param>
         /// <param name="properties">Properties to add</param>
-        public static void AutoCheck(this ICheckerCompare compare, IEnumerable<PropertyInfo> properties)
+        public static void AutoCheck(this ICheckerInitializer initializer, IEnumerable<PropertyInfo> properties)
         {
             // Setup the comparisons
             foreach (var prop in properties)
@@ -47,7 +47,7 @@ namespace NCheck
                     continue;
                 }
 
-                compare.Compare(prop);
+                initializer.Compare(prop);
             }
         }
 
