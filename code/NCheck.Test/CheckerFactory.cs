@@ -14,6 +14,11 @@ namespace NCheck.Test
             Register(typeof(NCheck.CheckerFactory).Assembly);
         }
 
+        public IChecker<T> CheckerHelper<T>()
+        {
+            return Checker<T>();
+        }
+
         /// <summary>
         /// Can assigns the conventions for the instance or configure ConventionsFactory as needed.
         /// </summary>

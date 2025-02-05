@@ -17,7 +17,7 @@ namespace NCheck.Checking
         {
             conventions = new List<KeyValuePair<Func<TSource, bool>, TTarget>>();
             syncLock = new object();
-            DefaultConvention = default(TTarget);
+            DefaultConvention = default;
         }
 
         /// <summary>

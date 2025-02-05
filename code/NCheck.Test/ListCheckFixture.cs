@@ -152,7 +152,7 @@ namespace NCheck.Test
             {
                 Children =
                 {
-                    new SampleClass{ Id = 1 },
+                    new SampleClass{ Id = 1, Value = 1.0 },
                     new SampleClass{ Id = 2 },
                     new SampleClass{ Id = 3 },
                 }
@@ -162,7 +162,8 @@ namespace NCheck.Test
             {
                 Children =
                 {
-                    new SampleClass{ Id = 1 },
+                    // NOTE: Data differs but using Id comparison
+                    new SampleClass{ Id = 1, Value = 2.0 },
                     new SampleClass{ Id = 1 },
                     new SampleClass{ Id = 4 },
                 }
@@ -170,6 +171,34 @@ namespace NCheck.Test
 
             var ex = Assert.Throws<PropertyCheckException>(() => Check(expected, candidate));
             Assert.That(ex.Message, Is.EqualTo("SampleList.Children\r\n[1].Id: Expected:<2>. Actual:<1>\r\n[2].Id: Expected:<3>. Actual:<4>"), "Message differs");
+        }
+
+        [Test]
+        public void ValueComparisonList()
+        {
+            var expected = new SampleList
+            {
+                Children =
+                {
+                    new SampleClass{ Name = "A", Value = 1.0 },
+                }
+            };
+
+            var candidate = new SampleList
+            {
+                Children =
+                {
+                    new SampleClass{ Name = "B", Value = 1.0 },
+                }
+            };
+
+            // Instantiate it and change the identity checker
+            var cf = CheckerFactory as CheckerFactory;
+            cf.Conventions.IdentityChecker = new NullIdentityChecker();
+            cf.Conventions.AssignTypeConventions();
+
+            var ex = Assert.Throws<PropertyCheckException>(() => Check(expected, candidate));
+            Assert.That(ex.Message, Is.EqualTo("SampleList.Children\r\n[0].Name: Expected:<A>. Actual:<B>"), "Message differs");
         }
     }
 }

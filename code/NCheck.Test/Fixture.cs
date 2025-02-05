@@ -224,7 +224,7 @@ namespace NCheck.Test
             }
             catch (TException ex)
             {
-                Assert.AreEqual(faultMessage, ex.Message);
+                Assert.That(ex.Message, Is.EqualTo(faultMessage));
                 return;
             }
 

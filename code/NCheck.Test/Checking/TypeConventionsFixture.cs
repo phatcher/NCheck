@@ -88,7 +88,7 @@ namespace NCheck.Test.Checking
         public void UseFunctionToDetermineCompareType()
         {
             conventions.CompareTarget.Register(x => typeof(IIdentifiable).IsAssignableFrom(x), CompareTarget.Id);
-            Assert.AreEqual(CompareTarget.Id, conventions.CompareTarget.Convention(typeof(SampleClass)));
+            Assert.That(conventions.CompareTarget.Convention(typeof(SampleClass)), Is.EqualTo(CompareTarget.Id));
         }
 
         [SetUp]

@@ -48,27 +48,30 @@ namespace NCheck.Checking
         /// </summary>
         public static CheckerConventions Conventions
         {
-            get
-            {
-                if (conventions == null)
-                {
-                    // Create it
-                    conventions = new CheckerConventions();
-
-                    // Now apply the various factories
-                    if (IdentityCheckerFactory != null)
-                    {
-                        conventions.IdentityChecker = IdentityCheckerFactory();
-                    }
-
-                    PropertyConventionsFactory?.Invoke(conventions);
-                    TypeConventionsFactory?.Invoke(conventions);
-                    ComparerConventionsFactory?.Invoke(conventions);
-                }
-
-                return conventions;
-            }
+            get => conventions ?? (conventions = DefaultCheckerConventions());
             set => conventions = value;
+        }
+
+        /// <summary>
+        /// The default convention assignment, applies the Factories against a new <see cref="CheckerConventions"/>"/> instance
+        /// </summary>
+        /// <returns></returns>
+        public static CheckerConventions DefaultCheckerConventions()
+        {
+            // Create it
+            var c = new CheckerConventions();
+
+            // Now apply the various factories
+            if (IdentityCheckerFactory != null)
+            {
+                c.IdentityChecker = IdentityCheckerFactory();
+            }
+
+            PropertyConventionsFactory?.Invoke(c);
+            TypeConventionsFactory?.Invoke(c);
+            ComparerConventionsFactory?.Invoke(c);
+
+            return c;
         }
     }
 }

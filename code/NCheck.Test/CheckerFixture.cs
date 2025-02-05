@@ -236,7 +236,7 @@ namespace NCheck.Test
             // Add it a again.
             var candidate = checker.Compare(expected.Info);
 
-            Assert.AreSame(expected, candidate.PropertyCheck);
+            Assert.That(candidate.PropertyCheck, Is.SameAs(expected));
         }
 
         [Test]

@@ -1,7 +1,7 @@
-﻿namespace NCheck
-{
-    using System;
+﻿using System;
 
+namespace NCheck
+{
     /// <summary>
     /// Use reflection to construct a checker for a type
     /// </summary>

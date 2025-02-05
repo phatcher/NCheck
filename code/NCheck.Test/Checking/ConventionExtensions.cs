@@ -8,17 +8,30 @@ namespace NCheck.Test.Checking
     {
         public static void AssignPropertyInfoConventions(this CheckerConventions conventions)
         {
-            //conventions.Convention(x => typeof(IIdentifiable).IsAssignableFrom(x), CompareTarget.Id);
             conventions.Convention((PropertyInfo x) => x.Name == "Ignore", CompareTarget.Ignore);
         }
 
-        public static void AssignTypeConventions(this CheckerConventions conventions)
+        /// <summary>
+        /// Project wide type conventions
+        /// </summary>
+        /// <param name="conventions"></param>
+        /// <param name="testConventions"></param>
+        public static void AssignTypeConventions(this CheckerConventions conventions, Action<CheckerConventions> testConventions = null)
         {
+            // Reset the conventions
+            conventions.TypeConventions.Clear();
+
             // NB Must have this one to put base behaviour in such as Guid
             conventions.TypeConventions.InitializeTypeConventions();
 
+            // Apply other ones if we are providing them...
+            testConventions?.Invoke(conventions);
+
             // NB Conventions must be after general type registrations if they are to apply.
-            conventions.Convention(x => typeof(IIdentifiable).IsAssignableFrom(x), CompareTarget.Id);
+            if (conventions.IdentityChecker.GetType() != typeof(NullIdentityChecker))
+            {
+                conventions.Convention(x => typeof(IIdentifiable).IsAssignableFrom(x), CompareTarget.Id);
+            }
         }
 
         public static void AssignComparerConventions(this CheckerConventions conventions)
@@ -66,9 +79,10 @@ namespace NCheck.Test.Checking
             var absB = Math.Abs(b);
             var diff = Math.Abs(a - b);
 
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (a == b)
             {
-                // shortcut, handles infinities
+                // Shortcut, handles infinities
                 return true;
             }
 
@@ -89,9 +103,10 @@ namespace NCheck.Test.Checking
             var absB = Math.Abs(b);
             var diff = Math.Abs(a - b);
 
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (a == b)
             {
-                // shortcut, handles infinities
+                // Shortcut, handles infinities
                 return true;
             }
 

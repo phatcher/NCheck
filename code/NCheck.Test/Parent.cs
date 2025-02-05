@@ -13,17 +13,14 @@
 
         public int Id { get; set; }
 
-        object IIdentifiable.Id
-        {
-            get { return Id; }
-        }
+        object IIdentifiable.Id => Id;
 
         public string Name { get; set; }
 
         public string this[string test]
         {
-            get { return indexer[test]; }
-            set { indexer[test] = value; }
+            get => indexer[test];
+            set => indexer[test] = value;
         }
 
         public string Ignore { get; set; }

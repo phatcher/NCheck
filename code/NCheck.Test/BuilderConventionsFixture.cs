@@ -30,7 +30,7 @@ namespace NCheck.Test
             var builder = new CheckerBuilder(CheckerFactory);
             var checker = (Checker<T>) builder.Build(typeof(T));
             var property = checker[name];
-            Assert.AreEqual(expected, property.CompareTarget);
+            Assert.That(property.CompareTarget, Is.EqualTo(expected));
         }
     }
 }

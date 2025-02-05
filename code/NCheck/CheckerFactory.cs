@@ -272,12 +272,12 @@ namespace NCheck
             return true;
         }
 
-        private IChecker<T> Checker<T>()
+        protected IChecker<T> Checker<T>()
         {
             return (IChecker<T>)Checker(typeof(T));
         }
 
-        private IChecker Checker(Type type)
+        protected IChecker Checker(Type type)
         {
             if (checkers.TryGetValue(type, out var checker))
             {

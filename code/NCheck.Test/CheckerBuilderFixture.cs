@@ -17,7 +17,7 @@ namespace NCheck.Test
 
             var checker = (ICheckerInitializer) builder.Build(typeof(Fred));
 
-            Assert.AreEqual(1, checker.Properties.Count, "Property count differs");
+            Assert.That(checker.Properties, Has.Count.EqualTo(1), "Property count differs");
         }
 
         [Test]
@@ -27,7 +27,7 @@ namespace NCheck.Test
 
             var checker = (ICheckerInitializer)builder.Build(typeof(Jim));
 
-            Assert.AreEqual(1, checker.Properties.Count, "Property count differs");
+            Assert.That(checker.Properties, Has.Count.EqualTo(1), "Property count differs");
         }
 
         private class Fred

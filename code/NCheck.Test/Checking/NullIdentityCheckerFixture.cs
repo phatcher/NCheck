@@ -17,7 +17,7 @@ namespace NCheck.Test.Checking
         {
             var ic = new NullIdentityChecker();
 
-            Assert.IsFalse(ic.SupportsId(type));
+            Assert.That(ic.SupportsId(type), Is.False);
         }
 
         [TestCaseSource(nameof(Samples))]
@@ -25,7 +25,7 @@ namespace NCheck.Test.Checking
         {
             var ic = new NullIdentityChecker();
 
-            Assert.IsNull(ic.ExtractId(value));
+            Assert.That(ic.ExtractId(value), Is.Null);
         }
 
         public static IEnumerable<object> Samples

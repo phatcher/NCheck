@@ -30,7 +30,7 @@ namespace NCheck.Test
         {
             pce.Entity();
 
-            Assert.AreEqual(CompareTarget.Entity, pc.CompareTarget);
+            Assert.That(pc.CompareTarget, Is.EqualTo(CompareTarget.Entity));
         }
 
         [Test]
@@ -38,7 +38,7 @@ namespace NCheck.Test
         {
             pce.Ignore();
 
-            Assert.AreEqual(CompareTarget.Ignore, pc.CompareTarget);
+            Assert.That(pc.CompareTarget, Is.EqualTo(CompareTarget.Ignore));
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace NCheck.Test
         {
             pce.Count();
 
-            Assert.AreEqual(CompareTarget.Count, pc.CompareTarget);
+            Assert.That(pc.CompareTarget, Is.EqualTo(CompareTarget.Count));
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace NCheck.Test
         {
             pce.Length(20);
 
-            Assert.AreEqual(20, pc.Length);
+            Assert.That(pc.Length, Is.EqualTo(20));
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace NCheck.Test
         {
             pce.Value();
 
-            Assert.AreEqual(CompareTarget.Value, pc.CompareTarget);
+            Assert.That(pc.CompareTarget, Is.EqualTo(CompareTarget.Value));
         }
 
         protected override void OnSetup()
